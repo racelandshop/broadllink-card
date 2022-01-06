@@ -2,7 +2,7 @@
 import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
 import { HomeAssistant, fireEvent, LovelaceCardEditor, ActionConfig } from 'custom-card-helpers';
 
-import { BoilerplateCardConfig } from './types';
+import { RemoteCardConfig } from './types';
 import { customElement, property, state } from 'lit/decorators';
 
 const options = {
@@ -46,16 +46,30 @@ const options = {
   },
 };
 
-@customElement('boilerplate-card-editor')
-export class BoilerplateCardEditor extends LitElement implements LovelaceCardEditor {
+@customElement('remote-card-editor')
+export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
-  @state() private _config?: BoilerplateCardConfig;
+  @state() private _config?: RemoteCardConfig;
   @state() private _toggle?: boolean;
   @state() private _helpers?: any;
   private _initialized = false;
 
-  public setConfig(config: BoilerplateCardConfig): void {
+  public setConfig(config: RemoteCardConfig): void {
     this._config = config;
+
+    // if (this.hass) {
+    //   this.hass.connection.sendMessagePromise({
+    //     type: 'broadlink/discover',
+    // }).then(
+    //     (resp) => {
+    //         console.log('Message success!', resp);
+    //     },
+    //     (err) => {
+    //         console.error('Message failed!', err);
+    //     }
+    // );
+    // }
+
 
     this.loadCardHelpers();
   }

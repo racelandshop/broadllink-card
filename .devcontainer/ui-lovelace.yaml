@@ -1,9 +1,8 @@
 resources:
-  - url: http://127.0.0.1:5000/boilerplate-card.js
+  - url: http://127.0.0.1:5000/remote-card.js
     type: module
 views:
   - cards:
-      - type: custom:boilerplate-card
-        name: Boilerplate Card Development
-        entity: sun.sun
+      - type: custom:remote-card
+        name: remote-card Card Development
         test_gui: true
