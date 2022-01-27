@@ -14,11 +14,15 @@ import {
   hasConfigOrEntityChanged,
   hasAction,
   ActionHandlerEvent,
-  handleAction,
+  //fireEvent,
+  //handleAction,
   LovelaceCardEditor,
   getLovelace,
-} from 'custom-card-helpers'; // https://github.com/custom-cards/custom-card-helpers
+} from 'custom-card-helpers';
 
+import { sendCommand, learningMode} from "./webhook"
+
+import { fetchDevicesMac } from "./helpers"
 
 import './editor';
 
@@ -34,12 +38,12 @@ console.info(
   'color: white; font-weight: bold; background: dimgray',
 );
 
-// This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
   type: 'remote-card',
   name: 'Broadlink Remote Card',
   description: 'A remote card for broadlink devices',
+  preview: true,
 });
 
 
@@ -49,14 +53,31 @@ export class RemoteCard extends LitElement {
     return document.createElement('remote-card-editor');
   }
 
-  public static getStubConfig(): Record<string, unknown> {
-    return {};
-  }
-
   // TODO Add any properities that should cause your element to re-render here
   @property({ attribute: false }) public hass!: HomeAssistant;
 
+  @property({ attribute: false }) learningMode = false;
+
   @state() private config!: RemoteCardConfig;
+
+  public static async getStubConfig(hass: HomeAssistant): Promise<Record<string, unknown>> {
+    console.log("Running getStubConfig")
+    //TODO: I would like to avoid to have to record the avaiable remotes in the configuration for obvios reasons. Maybe save in the frontend object
+    const Devices = await fetchDevicesMac(hass).then((resp) => { return resp })
+    if (Devices.length === 0) {
+      return {type: "custom:remote-card"};
+    }
+
+
+    return {
+      type: "custom:remote-card",
+      selected_device_mac: Devices[0].mac,
+      all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type})),
+      preset: "1"
+    };
+
+  }
+
 
   public setConfig(config: RemoteCardConfig): void {
     // TODO Check for required fields and that they are of the proper format
@@ -69,9 +90,8 @@ export class RemoteCard extends LitElement {
     }
 
     this.config = {
-      name: 'Broadlink Remote',
-      learning_mode: true,
       ...config,
+      preset: String(config.preset) //Typecast the "1" above is converted into a number for some reason.
     };
   }
 
@@ -81,14 +101,22 @@ export class RemoteCard extends LitElement {
       return false;
     }
 
-    return hasConfigOrEntityChanged(this, changedProps, false);
+    //Note: Not sure if this is the best way to implement this but it is a workaround
+    if (changedProps.has("learningMode")) {
+      return true
+    } else {
+      return hasConfigOrEntityChanged(this, changedProps, false);
+    }
   }
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
     // TODO Check for stateObj or other necessary things and render a warning if missing
-    if (this.config.show_warning) {
-      return this._showWarning(localize('common.show_warning'));
+
+
+    if (this.config.show_warning || !(this.config.selected_device_mac)) {
+      //return this._showWarning(localize('common.show_warning'));
+      return this._showWarning();
     }
 
     if (this.config.show_error) {
@@ -97,10 +125,12 @@ export class RemoteCard extends LitElement {
 
     return html`
       <ha-card>
-        <div class="remote">
+        <div class="remote ${classMap({
+            "learning-on-button": this.learningMode === true,
+            "learning-off": this.learningMode === false})}">
           <div class="row">
-           ${this._renderButton('power', 'mdi:broadcast', 'LearningMode')}
-           ${this._renderButton('power', 'mdi:power-off', 'PowerOff')}
+           ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
+           ${this._renderButton('powerOff', 'mdi:power-off', 'PowerOff')}
            ${this._renderButton('power', 'mdi:power', 'Power')}
           </div>
           <div class="sep"></div>
@@ -141,14 +171,14 @@ export class RemoteCard extends LitElement {
       return html`
           <ha-icon-button
           class="remoteButton ${classMap({
-            "learning-on-changeMode": this.config.learning_mode === true || button == "LearningMode",
-            "learning-on-button": this.config.learning_mode === true || button == "LearningMode",
-            "learning-off": this.config.learning_mode === "off"})}"
-            .button=${button}
+            "learning-on-changeMode": this.learningMode === true && button === "learningMode",
+            "learning-on-button": this.learningMode === true && button !== "learningMode",
+            "learning-off": this.learningMode === false})}"
+            button=${button}
             title=${title}
             @action=${this._handleAction}
             .actionHandler=${actionHandler({
-              hasHold: this.config && hasAction(this.config.hold_action), //Action Handler. TODO: Might be worthwhile to implement longpress and double click here
+              hasHold: this.config && hasAction(this.config.hold_action), //Action Handler. TODO: Might be worthwhile to implement longpress, so each remote has x2 the number of options
             })}
           >
             <ha-icon .icon=${icon}></ha-icon>
@@ -156,15 +186,39 @@ export class RemoteCard extends LitElement {
         `;
   }
 
-  private _handleAction(ev: ActionHandlerEvent): void {
+  private _handleAction(ev: ActionHandlerEvent): void { //TODO: Is there anyway to implement a "permanent" and a "quick" learning mode using a long vs a short press
     if (this.hass && this.config && ev.detail.action) {
-      handleAction(this, this.hass, this.config, ev.detail.action);
+      const command = (ev.currentTarget as HTMLButtonElement).title
+
+      if (command === 'LearningMode') {
+        this.learningMode = !(this.learningMode)
+        return
+      }
+
+      if (this.learningMode === true) {
+        const code = learningMode(this.hass, this.config, command, this.config.preset)
+        code.then(
+          (resp) => {
+            this.config.command_map = {
+              ...this.config.command_map,
+              command: resp.code
+            }
+          }
+        )
+
+      } else if (this.learningMode === false && command !== 'LearningMode') {
+        console.log("Sending the command:  ", command);
+        sendCommand(this.hass, this.config, command, this.config.preset)
+      }
+
+      // Might not even need this action handler
+      //handleAction(this, this.hass, this.config, ev.detail.action);
     }
   }
 
-  private _showWarning(warning: string): TemplateResult {
+  private _showWarning(): TemplateResult {
     return html`
-      <hui-warning>${warning}</hui-warning>
+      <hui-warning>Warning: Nenhum comando universal broadlink disponivel. P.f contacte o nerd mais proximo</hui-warning>
     `;
   }
 
@@ -181,24 +235,26 @@ export class RemoteCard extends LitElement {
     `;
   }
 
-  // box-shadow:
-  // {% if is_state('input_boolean.learning_mode_remote_number', 'on') %}
-  //   -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
-  // {% elif is_state('input_boolean.learning_mode_remote_number', 'off') %}
-  //   -2px -2px 5px #2c2c2c , 2px 2px 5px #191919;
-  // {% endif %}
-
+  //TODO fix styles (Currently is too wide)
   static get styles(): CSSResultGroup {
     return css`
       ha-card {
         background-color: var(--primary-background-color);
-        border-radius: 20px;
-        margin: 10px auto;
       }
 
       .remote {
         padding: 15px 0px 15px 0px;
+        border-radius: 20px;
       }
+
+      .remote.learning-on{
+        box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
+      }
+
+      .remote.learning-off{
+        box-shadow: -2px -2px 5px #2c2c2c , 2px 2px 5px #191919;
+      }
+
       ha-icon {
         cursor: pointer;
       }

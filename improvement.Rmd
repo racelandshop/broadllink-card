@@ -1,0 +1,4 @@
+## Possible improvements:
+
+ - Allow the devices in backend to be registered as proper entities (just for remote or for a selection of devices)
+ - Improve presets (allow the creation of new presets with a new name)
