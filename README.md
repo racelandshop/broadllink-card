@@ -2,7 +2,7 @@
 
 ## Note: Inspirted by ROKU card (give credit)
 
-A community driven boilerplate of best practices for Home Assistant Lovelace custom cards
+<!-- A community driven boilerplate of best practices for Home Assistant Lovelace custom cards
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
@@ -119,3 +119,4 @@ info Visit https://yarnpkg.com/en/docs/cli/install for documentation about this 
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2021.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/custom-cards/boilerplate-card.svg?style=for-the-badge
 [releases]: https://github.com/custom-cards/boilerplate-card/releases
+--->

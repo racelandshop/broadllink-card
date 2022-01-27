@@ -1,4 +1,6 @@
 ## Possible improvements:
 
  - Allow the devices in backend to be registered as proper entities (just for remote or for a selection of devices)
- - Improve presets (allow the creation of new presets with a new name)
+ - Improve presets (allow the creation of new presets with custom names)
+ - Save avaialble device data in the frontend object and not in the card configuration
+ - Implement other button types (and tie them to the presest)
