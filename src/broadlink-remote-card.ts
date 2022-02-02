@@ -224,7 +224,7 @@ export class RemoteCard extends LitElement {
       }
 
       .remote {
-        padding: 15px 0px 15px 0px;
+        padding: 38px 71px 38px 71px;
         border-radius: 20px;
       }
 
@@ -240,7 +240,7 @@ export class RemoteCard extends LitElement {
         cursor: pointer;
       }
       ha-icon-button {
-        --mdc-icon-size: 48px;
+        --mdc-icon-size: 100%px;
       }
 
       .remoteButton{
@@ -265,12 +265,12 @@ export class RemoteCard extends LitElement {
       }
 
       .sep{
-        padding: 25px 36px 8px 25px;
+        padding: 25px 0px 8px 0px;
       }
 
       .row {
         display: flex;
-        padding: 8px 36px 8px 36px;
+        padding: 8px 8px 8px 8px;
         justify-content: space-evenly;
         align-items: center;
       }
