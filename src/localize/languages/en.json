@@ -2,7 +2,16 @@
   "common": {
     "version": "Version",
     "invalid_configuration": "Invalid configuration",
-    "show_warning": "Show Warning",
+    "show_warning": "Warning: No Broadlink universal remote selected. Is the remote correctly connected to the network?",
     "show_error": "Show Error"
+  },
+  "info":{
+    "card_name": "Broadlink Remote Card",
+    "description": "A remote card for broadlink universal remotes"
+  },
+  "editor": {
+    "discover": "Discover/Update broalinks",
+    "remote": "Remote (MAC)",
+    "no_broadlinks": "No available broadlink to use"
   }
 }

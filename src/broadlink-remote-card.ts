@@ -14,8 +14,6 @@ import {
   hasConfigOrEntityChanged,
   hasAction,
   ActionHandlerEvent,
-  //fireEvent,
-  //handleAction,
   LovelaceCardEditor,
   getLovelace,
 } from 'custom-card-helpers';
@@ -41,8 +39,8 @@ console.info(
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
   type: 'remote-card',
-  name: 'Broadlink Remote Card',
-  description: 'A remote card for broadlink devices',
+  name: localize('info.card_name'),
+  description: localize('info.description'),
   preview: true,
 });
 
@@ -53,7 +51,6 @@ export class RemoteCard extends LitElement {
     return document.createElement('remote-card-editor');
   }
 
-  // TODO Add any properities that should cause your element to re-render here
   @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property({ attribute: false }) learningMode = false;
@@ -61,8 +58,6 @@ export class RemoteCard extends LitElement {
   @state() private config!: RemoteCardConfig;
 
   public static async getStubConfig(hass: HomeAssistant): Promise<Record<string, unknown>> {
-    console.log("Running getStubConfig")
-    //TODO: I would like to avoid to have to record the avaiable remotes in the configuration for obvios reasons. Maybe save in the frontend object
     const Devices = await fetchDevicesMac(hass).then((resp) => { return resp })
     if (Devices.length === 0) {
       return {type: "custom:remote-card"};
@@ -80,7 +75,6 @@ export class RemoteCard extends LitElement {
 
 
   public setConfig(config: RemoteCardConfig): void {
-    // TODO Check for required fields and that they are of the proper format
     if (!config) {
       throw new Error(localize('common.invalid_configuration'));
     }
@@ -91,7 +85,7 @@ export class RemoteCard extends LitElement {
 
     this.config = {
       ...config,
-      preset: String(config.preset) //Typecast the "1" above is converted into a number for some reason.
+      preset: String(config.preset) //Typecast the "1" above. For some reason is being converted into a number for some reason.
     };
   }
 
@@ -100,23 +94,14 @@ export class RemoteCard extends LitElement {
     if (!this.config) {
       return false;
     }
-
-    //Note: Not sure if this is the best way to implement this but it is a workaround
-    if (changedProps.has("learningMode")) {
-      return true
-    } else {
-      return hasConfigOrEntityChanged(this, changedProps, false);
-    }
+    return hasConfigOrEntityChanged(this, changedProps, true);
   }
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
-    // TODO Check for stateObj or other necessary things and render a warning if missing
-
-
     if (this.config.show_warning || !(this.config.selected_device_mac)) {
-      //return this._showWarning(localize('common.show_warning'));
-      return this._showWarning();
+      return this._showWarning(localize('common.show_warning'));
+
     }
 
     if (this.config.show_error) {
@@ -178,7 +163,7 @@ export class RemoteCard extends LitElement {
             title=${title}
             @action=${this._handleAction}
             .actionHandler=${actionHandler({
-              hasHold: this.config && hasAction(this.config.hold_action), //Action Handler. TODO: Might be worthwhile to implement longpress, so each remote has x2 the number of options
+              hasHold: this.config && hasAction(this.config.hold_action),
             })}
           >
             <ha-icon .icon=${icon}></ha-icon>
@@ -186,7 +171,7 @@ export class RemoteCard extends LitElement {
         `;
   }
 
-  private _handleAction(ev: ActionHandlerEvent): void { //TODO: Is there anyway to implement a "permanent" and a "quick" learning mode using a long vs a short press
+  private _handleAction(ev: ActionHandlerEvent): void {
     if (this.hass && this.config && ev.detail.action) {
       const command = (ev.currentTarget as HTMLButtonElement).title
 
@@ -210,15 +195,12 @@ export class RemoteCard extends LitElement {
         console.log("Sending the command:  ", command);
         sendCommand(this.hass, this.config, command, this.config.preset)
       }
-
-      // Might not even need this action handler
-      //handleAction(this, this.hass, this.config, ev.detail.action);
     }
   }
 
-  private _showWarning(): TemplateResult {
+  private _showWarning(error_message:string): TemplateResult {
     return html`
-      <hui-warning>Warning: Nenhum comando universal broadlink disponivel. P.f contacte o nerd mais proximo</hui-warning>
+      <hui-warning>${error_message}</hui-warning>
     `;
   }
 
@@ -235,7 +217,6 @@ export class RemoteCard extends LitElement {
     `;
   }
 
-  //TODO fix styles (Currently is too wide)
   static get styles(): CSSResultGroup {
     return css`
       ha-card {

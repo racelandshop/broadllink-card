@@ -1,63 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
 import { queryAsync } from "lit-element"
-import { HomeAssistant, fireEvent, LovelaceCardEditor, ActionHandlerEvent, ActionConfig, hasAction, handleAction } from 'custom-card-helpers';
+import { HomeAssistant, fireEvent, LovelaceCardEditor, ActionHandlerEvent, ActionConfig, hasAction, } from 'custom-card-helpers';
 import { actionHandler } from "./action-handler-directive";
 import { RemoteCardConfig } from './types';
 import { customElement, property, state } from 'lit/decorators';
 import { RippleHandlers } from '@material/mwc-ripple/ripple-handlers';
 import { Ripple } from '@material/mwc-ripple';
 import { discoverDevices } from './helpers'
-
-// //TODO typehint convert the resp into this type of object
-// export interface DeviceRegistryEntry {
-//   sucess: boolean,
-//   devices: Array<any>,
-// }
-
-// TODO: cleanup
-// TODO: In the input select I want to have an options as default
-
-const options = {
-  required: {
-    icon: 'tune',
-    name: 'Required',
-    secondary: 'Required options for this card to function',
-    show: true,
-  },
-  actions: {
-    icon: 'gesture-tap-hold',
-    name: 'Actions',
-    secondary: 'Perform actions based on tapping/clicking',
-    show: false,
-    options: {
-      tap: {
-        icon: 'gesture-tap',
-        name: 'Tap',
-        secondary: 'Set the action to perform on tap',
-        show: false,
-      },
-      hold: {
-        icon: 'gesture-tap-hold',
-        name: 'Hold',
-        secondary: 'Set the action to perform on hold',
-        show: false,
-      },
-      double_tap: {
-        icon: 'gesture-double-tap',
-        name: 'Double Tap',
-        secondary: 'Set the action to perform on double tap',
-        show: false,
-      },
-    },
-  },
-  appearance: {
-    icon: 'palette',
-    name: 'Appearance',
-    secondary: 'Customize the name, icon, etc',
-    show: false,
-  },
-};
+import { localize } from './localize/localize';
 
 @customElement('remote-card-editor')
 export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
@@ -119,12 +70,6 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       return html``;
     }
 
-    this._helpers.importMoreInfoControl('climate'); //TODO: what the fuck is this for?
-
-
-    //TODO change .label'
-    //TODO 2 use translations
-    //TODO 3 stylize the Discoverbroalink ha-card
     return html`
       <div class="card-config">
         <div class="discover">
@@ -138,11 +83,11 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
             @touchcancel="${this.handleRippleDeactivate}"
             @action=${this._handleAction}
             .actionHandler=${actionHandler({ hasHold: hasAction() })}>
-                Descobrir/Atualizar broadlinks
+                ${localize('editor.discover')}
           </ha-card>
         </div>
         <div class="option" .option=${'required'}>
-        <paper-input-label-8>Comando (MAC) </paper-input-label-8>
+        <paper-input-label-8>${localize('editor.remote')}</paper-input-label-8>
             <paper-dropdown-menu class="dropdown-icon">
               <paper-listbox slot="dropdown-content"
                 attr-for-selected="value"
@@ -150,7 +95,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
                 .configValue=${"selected_device_mac"}
                 selected='1'>
                 ${this._config?.all_devices === [] ?
-                html`<paper-item>Nenhuma broadlink disponivel</paper-item>`
+                html`<paper-item>${localize('editor.no_broadlinks')}</paper-item>`
                 : this._config?.all_devices.map(device => html`<paper-item value=${device.mac}><ha-icon .icon=${"mdi:remote"}></ha-icon>${this._formatDeviceDropdownOption(device)}</paper-item>`)}
               </paper-listbox>
             </paper-dropdown-menu>
@@ -158,19 +103,18 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
             <div class= "div-options">
                 <ha-card class = preset-card
-                @action=${this._changePreset}
-                .actionHandler=${actionHandler({ hasHold: hasAction() })}
-                key='1'>
+                @action=${this._changePreset.bind(this, '1')}
+                .actionHandler=${actionHandler({ hasHold: hasAction() })}>
                     1
                 </ha-card>
                 <ha-card class = preset-card
-                @action=${this._changePreset}
+                @action=${this._changePreset.bind(this, '2')}
                 .actionHandler=${actionHandler({ hasHold: hasAction() })}
                 key='2'>
                     2
                 </ha-card>
                 <ha-card class = preset-card
-                @action=${this._changePreset}
+                @action=${this._changePreset.bind(this, '3')}
                 .actionHandler=${actionHandler({ hasHold: hasAction() })}
                 key='3'>
                     3
@@ -197,47 +141,27 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
   }
 
   private _handleAction (ev: ActionHandlerEvent): void {
-    console.log("Handling action", ev) //I require this for the function to work for now
-    discoverDevices(this.hass)
+    if (ev) {
+      discoverDevices(this.hass)
+    }
   }
 
-  private _changePreset(ev): void {
+  private _changePreset(key:string): void {
     if (!this._config || !this.hass) {
       return;
     }
-    //Note: there should a more elegant way to implement this
-    const newPreset = ev.path[0].attributes.key.nodeValue
-    this._config = { ...this._config, preset: newPreset }
+    this._config = { ...this._config, preset: key }
     fireEvent(this, 'config-changed', { config: this._config });
-
-  }
-
-  private _toggleAction(ev): void {
-    this._toggleThing(ev, options.actions.options);
-  }
-
-  private _toggleOption(ev): void {
-    this._toggleThing(ev, options);
   }
 
   private _formatDeviceDropdownOption(device):string {
     return device.device_type + " ("  + device.mac + ")"
   }
 
-  private _toggleThing(ev, optionList): void {
-    const show = !optionList[ev.target.option].show;
-    for (const [key] of Object.entries(optionList)) {
-      optionList[key].show = false;
-    }
-    optionList[ev.target.option].show = show;
-    this._toggle = !this._toggle;
-  }
-
   private _rippleHandlers: RippleHandlers = new RippleHandlers(() => {
     return this._ripple;
   })
 
-  //TODO: Rippler events do not seems to be functioning as expected
   private handleRippleActivate(evt?: Event): void {
     this._ripple.then((r) => r && r.startPress && this._rippleHandlers.startPress(evt));
   }
@@ -263,7 +187,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     if (this[`_${target.configValue}`] === target.selected) {
       return;
     }
-    if (target.select === "Nenhuma broadlink disponivel") {
+    if (target.select === localize('editor.no_broadlinks')) {
       return
     }
 
