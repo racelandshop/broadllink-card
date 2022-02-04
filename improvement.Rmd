@@ -1,10 +1,8 @@
 ## Possible improvements:
 
 ### Frontend side:
- - change .label in editor render()
- - Implement Rippler events, as they do not seems to be functioning as expected
+ - Implement a visual effect when the broadlinks are being searched
  - In editor generate the preset programatically with a loop or a .map
- - Fix styles (Currently is too wide)
  - I would like to avoid to have to record the avaiable remotes in each card configuration. Maybe save in the frontend object
  - Implement a "permanent" and a "quick" learning mode using a long vs a short press
  - Implement longpress, so each remote has x2 the number of options

@@ -1,26 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+
 import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
 import { queryAsync } from "lit-element"
 import { HomeAssistant, fireEvent, LovelaceCardEditor, ActionHandlerEvent, ActionConfig, hasAction, } from 'custom-card-helpers';
 import { actionHandler } from "./action-handler-directive";
 import { RemoteCardConfig } from './types';
 import { customElement, property, state } from 'lit/decorators';
-import { RippleHandlers } from '@material/mwc-ripple/ripple-handlers';
-import { Ripple } from '@material/mwc-ripple';
-import { discoverDevices } from './helpers'
 import { localize } from './localize/localize';
+import { discoverDevices } from './helpers'
+
 
 @customElement('remote-card-editor')
 export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
-
-  @queryAsync('mwc-ripple') private _ripple!: Promise<Ripple | null>;
 
   @state() private _config?: RemoteCardConfig;
 
   @state() private _toggle?: boolean;
 
   @state() private _helpers?: any;
+
+  @property({ attribute: false }) preset?: string
 
   private _initialized = false;
 
@@ -74,13 +75,6 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       <div class="card-config">
         <div class="discover">
           <ha-card
-            @focus="${this.handleRippleFocus}"
-            @blur="${this.handleRippleBlur}"
-            @mousedown="${this.handleRippleActivate}"
-            @mouseup="${this.handleRippleDeactivate}"
-            @touchstart="${this.handleRippleActivate}"
-            @touchend="${this.handleRippleDeactivate}"
-            @touchcancel="${this.handleRippleDeactivate}"
             @action=${this._handleAction}
             .actionHandler=${actionHandler({ hasHold: hasAction() })}>
                 ${localize('editor.discover')}
@@ -119,6 +113,18 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
                 key='3'>
                     3
                 </ha-card>
+                <ha-card class = preset-card
+                @action=${this._changePreset.bind(this, '4')}
+                .actionHandler=${actionHandler({ hasHold: hasAction() })}
+                key='4'>
+                    4
+                </ha-card>
+                <ha-card class = preset-card
+                @action=${this._changePreset.bind(this, '5')}
+                .actionHandler=${actionHandler({ hasHold: hasAction() })}
+                key='5'>
+                    5
+                </ha-card>
           </div class= "div-options">
 
       </div class="card-config">
@@ -151,31 +157,12 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       return;
     }
     this._config = { ...this._config, preset: key }
+    this.preset = key
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
   private _formatDeviceDropdownOption(device):string {
     return device.device_type + " ("  + device.mac + ")"
-  }
-
-  private _rippleHandlers: RippleHandlers = new RippleHandlers(() => {
-    return this._ripple;
-  })
-
-  private handleRippleActivate(evt?: Event): void {
-    this._ripple.then((r) => r && r.startPress && this._rippleHandlers.startPress(evt));
-  }
-
-  private handleRippleDeactivate(): void {
-    this._ripple.then((r) => r && r.endPress && this._rippleHandlers.endPress());
-  }
-
-  private handleRippleFocus(): void {
-    this._ripple.then((r) => r && r.startFocus && this._rippleHandlers.startFocus());
-  }
-
-  private handleRippleBlur(): void {
-    this._ripple.then((r) => r && r.endFocus && this._rippleHandlers.endFocus());
   }
 
 
@@ -210,20 +197,28 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
   static get styles(): CSSResultGroup {
     return css`
       ha-card{
-        width: 20%;
-        height: 20%;
+        width: 40%;
+        height: 30%;
         background-color: var(--primary-background-color);
         box-shadow: -2px -2px 5px #2c2c2c , 2px 2px 5px #191919;
         cursor: pointer;
       }
       ha-card.preset-card{
-        width: 5%;
-        height: 50%;
-        padding: 10px 10px 10px 10px;
+        width: 15%;
+        padding: 2%;
+        margin: 5%;
         float: left;
+        text-align: center;
       }
       .div-options {
-        padding: 20px 20px 20px 20px;;
+        width: 60%;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 30px 8px 8px;
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-direction: row;
+        align-content: stretch;
       }
       .option {
         padding: 4px 0px;

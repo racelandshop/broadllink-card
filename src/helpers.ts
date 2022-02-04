@@ -19,6 +19,5 @@ export const fetchDevicesMac = async (hass: HomeAssistant | undefined): Promise<
 }
 
 export const discoverDevices = async (hass: HomeAssistant | undefined): Promise<string[]> => {
-  console.log("Discovering")
   return await discoverBroadlinks(hass).then(resp => { return resp.devices })
 }
