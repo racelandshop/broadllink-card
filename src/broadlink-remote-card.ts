@@ -53,7 +53,9 @@ export class RemoteCard extends LitElement {
 
   @property({ attribute: false }) public hass!: HomeAssistant;
 
-  @property({ attribute: false }) learningMode = false;
+  @property({ attribute: false }) learningOn = false;
+
+  @property({ attribute: false }) learningLock = false;
 
   @state() private config!: RemoteCardConfig;
 
@@ -111,8 +113,8 @@ export class RemoteCard extends LitElement {
     return html`
       <ha-card>
         <div class="remote ${classMap({
-            "learning-on-button": this.learningMode === true,
-            "learning-off": this.learningMode === false})}">
+            "learning-on-button": this.learningOn === true,
+            "learning-off": this.learningOn === false})}">
           <div class="row">
            ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
            ${this._renderButton('powerOff', 'mdi:power-off', 'PowerOff')}
@@ -156,9 +158,9 @@ export class RemoteCard extends LitElement {
       return html`
           <ha-icon-button
           class="remoteButton ${classMap({
-            "learning-on-changeMode": this.learningMode === true && button === "learningMode",
-            "learning-on-button": this.learningMode === true && button !== "learningMode",
-            "learning-off": this.learningMode === false})}"
+            "learning-on-changeMode": this.learningOn === true && button === "learningMode",
+            "learning-on-button": this.learningOn === true && button !== "learningMode",
+            "learning-off": this.learningOn === false})}"
             button=${button}
             title=${title}
             @action=${this._handleAction}
@@ -176,24 +178,24 @@ export class RemoteCard extends LitElement {
       const command = (ev.currentTarget as HTMLButtonElement).title
 
       if (command === 'LearningMode') {
-        this.learningMode = !(this.learningMode)
-        return
+        if (this.learningLock === false) {
+          this.learningOn = !(this.learningOn);
+          return;
+        }
+        return;
       }
 
-      if (this.learningMode === true) {
-        const code = learningMode(this.hass, this.config, command, this.config.preset)
-        code.then(
-          (resp) => {
-            this.config.command_map = {
-              ...this.config.command_map,
-              command: resp.code
-            }
+      if (this.learningOn === true) {
+        this.learningLock = true;
+        const response = learningMode(this.hass, this.config, command, this.config.preset);
+        response.then((resp) => {
+          if (resp.sucess){
+            this.learningLock = false;
           }
-        )
+        })
 
-      } else if (this.learningMode === false && command !== 'LearningMode') {
-        console.log("Sending the command:  ", command);
-        sendCommand(this.hass, this.config, command, this.config.preset)
+      } else if (this.learningOn === false && command !== 'LearningMode') {
+        sendCommand(this.hass, this.config, command, this.config.preset);
       }
     }
   }

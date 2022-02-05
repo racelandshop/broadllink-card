@@ -3,6 +3,7 @@
 //TODO type-hint
 
 export interface CommandConfig {
+    sucess:string
     code: string
   }
 

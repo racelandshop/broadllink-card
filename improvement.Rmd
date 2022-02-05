@@ -9,16 +9,16 @@
  - Implement longpress, so each remote has x2 the number of options
  - Add a default option to the input_select in the editor
  - stylize the Discoverbroalink ha-card
-  - Implement other remote types (and tie them to the presest)
+ - Implement other remote types (and tie them to the presest)
+ - Handle visual indicator that a button is being learned (like a shake when the user tries to get out of learning mode or when it tries learn other command)
 
 ### Backend side:
 
  - Allow the devices in backend to be registered as proper entities (just for remote or for a selection of devices)
- - Improve presets (allow the creation of new presets with custom names)
+ - Improve presets (allow the creation of new presets with custom names?)
  - Save avaialble device data in the frontend object and not in the card configuration
  - Improve error Handling
  - Type-hinting
- - Handle notification -> Other than the persistant notifications
  - The card in the frontend should not render until the discovery process is done.
  - Test suite? check broadlink integration
  - How to handle a locked broadlink?
