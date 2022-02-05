@@ -1,6 +1,7 @@
 ## Possible improvements:
 
 ### Frontend side:
+ - Add presets changer to the side of remote instead to the editor card
  - Implement a visual effect when the broadlinks are being searched
  - In editor generate the preset programatically with a loop or a .map
  - I would like to avoid to have to record the avaiable remotes in each card configuration. Maybe save in the frontend object
