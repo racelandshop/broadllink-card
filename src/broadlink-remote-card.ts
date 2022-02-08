@@ -55,6 +55,8 @@ export class RemoteCard extends LitElement {
 
   @property({ attribute: false }) learningOn = false;
 
+  @property({ attribute: false }) quickLearning = false;
+
   @property({ attribute: false }) learningLock = false;
 
   @state() private config!: RemoteCardConfig;
@@ -165,7 +167,7 @@ export class RemoteCard extends LitElement {
             title=${title}
             @action=${this._handleAction}
             .actionHandler=${actionHandler({
-              hasHold: this.config && hasAction(this.config.hold_action),
+              hasHold: hasAction(this.config.hold_action),
             })}
           >
             <ha-icon .icon=${icon}></ha-icon>
@@ -175,13 +177,11 @@ export class RemoteCard extends LitElement {
 
   private _handleAction(ev: ActionHandlerEvent): void {
     if (this.hass && this.config && ev.detail.action) {
+      const action = ev.detail.action
       const command = (ev.currentTarget as HTMLButtonElement).title
 
       if (command === 'LearningMode') {
-        if (this.learningLock === false) {
-          this.learningOn = !(this.learningOn);
-          return;
-        }
+        this._handleToggleLearningMode(action);
         return;
       }
 
@@ -191,6 +191,10 @@ export class RemoteCard extends LitElement {
         response.then((resp) => {
           if (resp.sucess){
             this.learningLock = false;
+            if (this.quickLearning) {
+              this.quickLearning = false
+              this.learningOn = false;
+            }
           }
         })
 
@@ -205,6 +209,15 @@ export class RemoteCard extends LitElement {
       <hui-warning>${error_message}</hui-warning>
     `;
   }
+
+  private _handleToggleLearningMode(action): void{
+      if (this.learningLock === false) {
+        this.learningOn = !(this.learningOn);
+        if (action === "tap") {
+          this.quickLearning = true;
+        }
+      }
+    }
 
   private _showError(error: string): TemplateResult {
     const errorCard = document.createElement('hui-error-card');

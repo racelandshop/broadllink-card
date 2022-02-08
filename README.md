@@ -75,3 +75,8 @@ For more information you can check the amazing [python-broadlink](https://github
 The broadlink devices and discovered when the homeassistant is started and when the user clicks on the "Discover" button in the card editor
 
 ### Learning Mode
+
+This card has 2 learning modes: a "quick" and a "long":
+
+- If you use a quick tap on the learning Mode button after the command is learned it goes out of the learning mode
+- If you use a long tap, the remote will stay on learning mode until you turn it off
