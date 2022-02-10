@@ -13,11 +13,15 @@ export interface DeviceConfig {
 export const fetchDevicesMac = async (hass: HomeAssistant | undefined): Promise<DeviceConfig[]> => {
   return await fetchBroadlinkRemoteDevices(hass).then(
     resp => {
-      return resp.devices
+      return resp.devices;
     }
   );
 }
 
-export const discoverDevices = async (hass: HomeAssistant | undefined): Promise<string[]> => {
-  return await discoverBroadlinks(hass).then(resp => { return resp.devices })
+export const discoverDevices = async (hass: HomeAssistant | undefined): Promise<DeviceConfig[]> => {
+  return await discoverBroadlinks(hass).then(
+    resp => {
+      return resp.devices;
+    }
+  );
 }

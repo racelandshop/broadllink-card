@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 
-import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
-import { queryAsync } from "lit-element"
+import { LitElement, html, TemplateResult, css, CSSResultGroup, PropertyValues} from 'lit';
 import { HomeAssistant, fireEvent, LovelaceCardEditor, ActionHandlerEvent, ActionConfig, hasAction, } from 'custom-card-helpers';
 import { actionHandler } from "./action-handler-directive";
 import { RemoteCardConfig } from './types';
 import { customElement, property, state } from 'lit/decorators';
+import { classMap } from "lit/directives/class-map";
 import { localize } from './localize/localize';
-import { discoverDevices } from './helpers'
+import { discoverDevices, DeviceConfig} from './helpers'
+
+
 
 
 @customElement('remote-card-editor')
@@ -17,22 +19,28 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
   @state() private _config?: RemoteCardConfig;
 
-  @state() private _toggle?: boolean;
+  @state() private _toogle?: boolean; //Is this doing anything?
 
   @state() private _helpers?: any;
 
-  @property({ attribute: false }) preset?: string
+  @property({ attribute: false }) preset?: string //Is thing doing anything?
+
+  @property( { attribute: false } ) _discovering?: boolean;
 
   private _initialized = false;
 
   public setConfig(config: RemoteCardConfig): void {
     this._config = config;
+    this._discovering = false;
     this.loadCardHelpers();
   }
 
-  protected shouldUpdate(): boolean {
+  protected shouldUpdate(changedProps: PropertyValues): boolean { //TODO Improve this function
     if (!this._initialized) {
       this._initialize();
+    }
+    if (changedProps.has('_discovering')) {
+      return true
     }
 
     return true;
@@ -44,6 +52,10 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
   get _entity(): string {
     return this._config?.entity || '';
+  }
+
+  get _preset(): string{
+    return this._config?.preset || ''
   }
 
   get _show_warning(): boolean {
@@ -73,13 +85,11 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
     return html`
       <div class="card-config">
-        <div class="discover">
-          <ha-card
+          <ha-card class=${classMap({"spin": this._discovering === true})}
             @action=${this._handleAction}
             .actionHandler=${actionHandler({ hasHold: hasAction() })}>
                 ${localize('editor.discover')}
           </ha-card>
-        </div>
         <div class="option" .option=${'required'}>
         <paper-input-label-8>${localize('editor.remote')}</paper-input-label-8>
             <paper-dropdown-menu class="dropdown-icon">
@@ -96,30 +106,30 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
 
             <div class= "div-options">
-                <ha-card class = preset-card
+                <ha-card class = "preset-card"
                 @action=${this._changePreset.bind(this, '1')}
                 .actionHandler=${actionHandler({ hasHold: hasAction() })}>
                     1
                 </ha-card>
-                <ha-card class = preset-card
+                <ha-card class = "preset-card"
                 @action=${this._changePreset.bind(this, '2')}
                 .actionHandler=${actionHandler({ hasHold: hasAction() })}
                 key='2'>
                     2
                 </ha-card>
-                <ha-card class = preset-card
+                <ha-card class = "preset-card"
                 @action=${this._changePreset.bind(this, '3')}
                 .actionHandler=${actionHandler({ hasHold: hasAction() })}
                 key='3'>
                     3
                 </ha-card>
-                <ha-card class = preset-card
+                <ha-card class = "preset-card"
                 @action=${this._changePreset.bind(this, '4')}
                 .actionHandler=${actionHandler({ hasHold: hasAction() })}
                 key='4'>
                     4
                 </ha-card>
-                <ha-card class = preset-card
+                <ha-card class = "preset-card"
                 @action=${this._changePreset.bind(this, '5')}
                 .actionHandler=${actionHandler({ hasHold: hasAction() })}
                 key='5'>
@@ -134,7 +144,6 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     `;
   }
 
-
   private _initialize(): void {
     if (this.hass === undefined) return;
     if (this._config === undefined) return;
@@ -146,9 +155,18 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     this._helpers = await (window as any).loadCardHelpers();
   }
 
-  private _handleAction (ev: ActionHandlerEvent): void {
+  private async _handleAction (ev: ActionHandlerEvent): Promise<void>{
     if (ev) {
-      discoverDevices(this.hass)
+      this._discovering = true
+      const Devices = await discoverDevices(this.hass).then((resp) => {
+        return resp;
+      })
+      this._discovering = false
+      if (this._config?.all_devices) { //Also check if currently selected devices is avaiable. If selected device is None, select the first
+        this._config.all_devices = Devices;
+        fireEvent(this, 'config-changed', { config: this._config })
+      }
+
     }
   }
 
@@ -157,7 +175,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       return;
     }
     this._config = { ...this._config, preset: key }
-    this.preset = key
+    this.preset = key //Is this doing anything?
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
@@ -210,6 +228,33 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
         float: left;
         text-align: center;
       }
+
+      ha-card.spin::before{
+        animation: 1.5s linear infinite spinner;
+        animation-play-state: inherit;
+        border: solid 5px #cfd0d1;
+        border-bottom-color: #1c87c9;
+        border-radius: 50%;
+        border-width: 10%;
+        content: "";
+        height: 20px;
+        width: 20px;
+        position: absolute;
+        top: 50%;
+        left: 83%;
+        transform: translate3d(-50%, -50%, 0);
+        will-change: transform;
+      }
+
+      @keyframes spinner {
+        0% {
+          transform: translate3d(-50%, -50%, 0) rotate(0deg);
+        }
+        100% {
+          transform: translate3d(-50%, -50%, 0) rotate(360deg);
+        }
+      }
+
       .div-options {
         width: 60%;
         display: flex;
