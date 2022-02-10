@@ -1,7 +1,7 @@
 ## Possible improvements:
 
 ### Frontend side:
- - Implement a visual effect when the broadlinks are being searched
+ - Improve shouldUpdate in editor
  - Handle visual indicator that a button is being learned (like a shake when the user tries to get out of learning mode or when it tries learn other command)
  - Add images to README.rmd
  - In editor generate the preset programatically with a loop or a .map
@@ -13,8 +13,9 @@
   - Add presets changer to the side of remote instead to the editor card (requires to update configuration from the broadlink code, which does not seem trivial)
 
 ### Backend side:
+ - Imrpove error handling when discovering devices
+ - Improve presets (Associate a card type to a preset)
  - Allow the devices in backend to be registered as proper entities (just for remote or for a selection of devices)
- - Improve presets (allow the creation of new presets with custom names?)
  - Save avaialble device data in the frontend object and not in the card configuration
  - Improve error Handling
  - Type-hinting
