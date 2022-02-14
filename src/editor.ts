@@ -162,8 +162,11 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
         return resp;
       })
       this._discovering = false
-      if (this._config?.all_devices) { //Also check if currently selected devices is avaiable. If selected device is None, select the first
+      if (this._config?.all_devices) {
         this._config.all_devices = Devices;
+        if (!(this._config.all_devices.map(device => device.mac).includes(this._config.selected_device_mac))) {
+          this._config.selected_device_mac = ""
+        }
         fireEvent(this, 'config-changed', { config: this._config })
       }
 
@@ -233,7 +236,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
         animation: 1.5s linear infinite spinner;
         animation-play-state: inherit;
         border: solid 5px #cfd0d1;
-        border-bottom-color: #1c87c9;
+        border-bottom-color: var(--primary-background-color);
         border-radius: 50%;
         border-width: 10%;
         content: "";
