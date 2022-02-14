@@ -115,7 +115,7 @@ export class RemoteCard extends LitElement {
     return html`
       <ha-card>
         <div class="remote ${classMap({
-            "learning-on-button": this.learningOn === true,
+            "learning-on": this.learningOn === true,
             "learning-off": this.learningOn === false})}">
           <div class="row">
            ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
