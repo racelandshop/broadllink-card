@@ -8,7 +8,7 @@ import { RemoteCardConfig } from './types';
 import { customElement, property, state } from 'lit/decorators';
 import { classMap } from "lit/directives/class-map";
 import { localize } from './localize/localize';
-import { discoverDevices, DeviceConfig} from './helpers'
+import { discoverDevices} from './helpers'
 
 
 
@@ -19,11 +19,11 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
   @state() private _config?: RemoteCardConfig;
 
-  @state() private _toogle?: boolean; //Is this doing anything?
+  @state() private _toogle?: boolean;
 
   @state() private _helpers?: any;
 
-  @property({ attribute: false }) preset?: string //Is thing doing anything?
+  @property({ attribute: false }) preset?: string
 
   @property( { attribute: false } ) _discovering?: boolean;
 
@@ -31,6 +31,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
   public setConfig(config: RemoteCardConfig): void {
     this._config = config;
+    this.preset = this._config.preset
     this._discovering = false;
     this.loadCardHelpers();
   }
@@ -82,7 +83,6 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     if (!this.hass || !this._helpers) {
       return html``;
     }
-
     return html`
       <div class="card-config">
           <ha-card class=${classMap({"spin": this._discovering === true})}
@@ -106,36 +106,18 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
 
             <div class= "div-options">
-                <ha-card class = "preset-card"
-                @action=${this._changePreset.bind(this, '1')}
-                .actionHandler=${actionHandler({ hasHold: hasAction() })}>
-                    1
-                </ha-card>
-                <ha-card class = "preset-card"
-                @action=${this._changePreset.bind(this, '2')}
-                .actionHandler=${actionHandler({ hasHold: hasAction() })}
-                key='2'>
-                    2
-                </ha-card>
-                <ha-card class = "preset-card"
-                @action=${this._changePreset.bind(this, '3')}
-                .actionHandler=${actionHandler({ hasHold: hasAction() })}
-                key='3'>
-                    3
-                </ha-card>
-                <ha-card class = "preset-card"
-                @action=${this._changePreset.bind(this, '4')}
-                .actionHandler=${actionHandler({ hasHold: hasAction() })}
-                key='4'>
-                    4
-                </ha-card>
-                <ha-card class = "preset-card"
-                @action=${this._changePreset.bind(this, '5')}
-                .actionHandler=${actionHandler({ hasHold: hasAction() })}
-                key='5'>
-                    5
-                </ha-card>
-          </div class= "div-options">
+            ${['1', '2', '3', '4', '5'].map((preset) =>
+              html `
+              <ha-card class = "preset-card ${classMap({
+                  "on": this.preset === preset,
+                  "off": this.preset !== preset})}"
+                  @action=${this._changePreset.bind(this, preset)}
+                  .actionHandler=${actionHandler({ hasHold: hasAction() })}>
+                  ${preset}
+              </ha-card>`
+            )
+          }
+            </div class= "div-options">
 
       </div class="card-config">
     </div class="option">
@@ -178,7 +160,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       return;
     }
     this._config = { ...this._config, preset: key }
-    this.preset = key //Is this doing anything?
+    this.preset = key
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
@@ -230,6 +212,11 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
         margin: 5%;
         float: left;
         text-align: center;
+      }
+
+      ha-card.preset-card.on{
+        color: #FFA500;
+        box-shadow: -1px -1px 3px #FFA500 , 1px 1px 3px #FFA500;
       }
 
       ha-card.spin::before{
