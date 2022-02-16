@@ -59,6 +59,8 @@ export class RemoteCard extends LitElement {
 
   @property({ attribute: false }) learningLock = false;
 
+  @property({ attribute: false }) buttonBeingLearned = "none";
+
   @state() private config!: RemoteCardConfig;
 
   public static async getStubConfig(hass: HomeAssistant): Promise<Record<string, unknown>> {
@@ -161,7 +163,8 @@ export class RemoteCard extends LitElement {
           <ha-icon-button
           class="remoteButton ${classMap({
             "learning-on-changeMode": this.learningOn === true && button === "learningMode",
-            "learning-on-button": this.learningOn === true && button !== "learningMode",
+            "learning-on-button": this.learningOn === true && button !== "learningMode" && this.buttonBeingLearned !== title,
+            "learning-on-button-lock": this.learningOn === true && button !== "learningMode" && this.learningLock === true && this.buttonBeingLearned === title,
             "learning-off": this.learningOn === false})}"
             button=${button}
             title=${title}
@@ -177,12 +180,16 @@ export class RemoteCard extends LitElement {
 
   private _handleAction(ev: ActionHandlerEvent): void {
     if (this.hass && this.config && ev.detail.action) {
-      const action = ev.detail.action
-      const command = (ev.currentTarget as HTMLButtonElement).title
+      const action = ev.detail.action;
+      const command = (ev.currentTarget as HTMLButtonElement).title;
 
       if (command === 'LearningMode') {
         this._handleToggleLearningMode(action);
         return;
+      }
+
+      if (this.learningLock === false) {
+        this.buttonBeingLearned = command;
       }
 
       if (this.learningOn === true) {
@@ -191,8 +198,9 @@ export class RemoteCard extends LitElement {
         response.then((resp) => {
           if (resp.sucess){
             this.learningLock = false;
+            this.buttonBeingLearned = "none";
             if (this.quickLearning) {
-              this.quickLearning = false
+              this.quickLearning = false;
               this.learningOn = false;
             }
           }
@@ -247,6 +255,10 @@ export class RemoteCard extends LitElement {
         box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
       }
 
+      .remote.learning-on{
+        box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
+      }
+
       .remote.learning-off{
         box-shadow: -2px -2px 5px #2c2c2c , 2px 2px 5px #191919;
       }
@@ -273,6 +285,11 @@ export class RemoteCard extends LitElement {
 
       .remoteButton.learning-off{
         box-shadow: -2px -2px 5px #2c2c2c , 2px 2px 5px #191919;
+      }
+
+      .remoteButton.learning-on-button-lock{
+        box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
+        color: rgb(227 145 145)
       }
 
       ha-icon-button ha-icon {
