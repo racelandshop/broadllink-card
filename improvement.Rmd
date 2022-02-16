@@ -1,7 +1,6 @@
 ## Possible improvements:
 
 ### Frontend side:
- - Add images to README.rmd
  - I would like to avoid to have to record the avaiable remotes in each card configuration. Maybe save in the frontend object
  - Handle visual indicator that a button is being learned (like a shake when the user tries to get out of learning mode or when it tries learn other command)
  - Add a default option to the input_select in the editor
