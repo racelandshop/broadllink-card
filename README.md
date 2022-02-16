@@ -66,13 +66,20 @@ For more information you can check the amazing [python-broadlink](https://github
 ![overview](/images/overview.png "overview")
 
 
-### Discover Devices
+### Discover New Devices
 
-The broadlink devices and discovered when the homeassistant is started and when the user clicks on the "Discover" button in the card editor
+The broadlink devices and discovered when the homeassistant is started and when the user clicks on the "Discover" button in the card editor:
+
+![editor_discover.png](/images/overview.png "editor_discover")
 
 ### Learning Mode
 
+To enter the learning mode, press the top right button on the remote. When you enter this mode, the remote lights up. Pressing any other button in this mode will make the broadlink device light up. If you send a IF code (by pointing a real life remote to the device) it will bind the code into the broadlink remote.
+
 This card has 2 learning modes: a "quick" and a "long":
 
-- If you use a quick tap on the learning Mode button after the command is learned it goes out of the learning mode
+- If you use a short press on the learning Mode button after the command is learned it goes out of the learning mode
 - If you use a long tap, the remote will stay on learning mode until you turn it off
+
+
+!["learning_mode_on"](turning_on_learning_mode.gif "learning_mode_on")
