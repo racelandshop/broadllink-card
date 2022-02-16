@@ -63,7 +63,8 @@ For more information you can check the amazing [python-broadlink](https://github
 
 ### Card Overview
 
-[[/images/overview.png|Card]]
+![overview](/images/overview.png "overview")
+
 
 ### Discover Devices
 
