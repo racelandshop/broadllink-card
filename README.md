@@ -82,4 +82,4 @@ This card has 2 learning modes: a "quick" and a "long":
 - If you use a long tap, the remote will stay on learning mode until you turn it off
 
 
-!["learning_mode_on"](turning_on_learning_mode.gif "learning_mode_on")
+!["learning_mode_on"](images/turning_on_learning_mode.gif "learning_mode_on")
