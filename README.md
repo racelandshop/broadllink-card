@@ -83,3 +83,7 @@ This card has 2 learning modes: a "quick" and a "long":
 
 
 !["learning_mode_on"](images/turning_on_learning_mode.gif "learning_mode_on")
+
+### Presets
+
+After binding a IF command to the remote, every new instance of the card will have the same command. To allow the user to quickly switch up remote and remote types, presets were introduced. Every broadlink device (e.g a specific RM4PRO) has 5 presets and the user can switch between them in the editor.
