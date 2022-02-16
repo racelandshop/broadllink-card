@@ -70,7 +70,7 @@ For more information you can check the amazing [python-broadlink](https://github
 
 The broadlink devices and discovered when the homeassistant is started and when the user clicks on the "Discover" button in the card editor:
 
-![editor_discover.png](/images/overview.png "editor_discover")
+![editor_discover.png](/images/editor_discover.png "editor_discover")
 
 ### Learning Mode
 
