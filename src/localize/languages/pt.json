@@ -11,7 +11,10 @@
   },
   "editor": {
     "discover": "Descobrir/Atualizar broadlinks",
+    "remote_type": "Comando",
     "remote": "Comando (MAC)",
-    "no_broadlinks": "Nenhuma broadlink disponivel"
+    "no_broadlinks": "Nenhuma broadlink disponivel",
+    "tv_remote": "Televisão",
+    "ac_remote": "Ar condicionado"
   }
 }

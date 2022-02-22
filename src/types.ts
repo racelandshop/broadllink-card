@@ -17,6 +17,7 @@ export interface RemoteCardConfig extends LovelaceCardConfig {
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;
+  remoteType: string;
   selected_device_mac: string;
   all_devices: DeviceConfig[];
   preset: string;

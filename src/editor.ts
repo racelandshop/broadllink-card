@@ -91,22 +91,37 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
                 ${localize('editor.discover')}
           </ha-card>
         <div class="option" .option=${'required'}>
-        <paper-input-label-8>${localize('editor.remote')}</paper-input-label-8>
-            <paper-dropdown-menu class="dropdown-icon">
+            <paper-dropdown-menu class="dropdown-icon" .label=${localize('editor.remote')}>
               <paper-listbox slot="dropdown-content"
                 attr-for-selected="value"
                 @iron-select=${this._valueChanged}
                 .configValue=${"selected_device_mac"}
-                selected='1'>
+                selected=${this._config?.selected_device_mac}>
                 ${this._config?.all_devices === [] ?
                 html`<paper-item>${localize('editor.no_broadlinks')}</paper-item>`
                 : this._config?.all_devices.map(device => html`<paper-item value=${device.mac}><ha-icon .icon=${"mdi:remote"}></ha-icon>${this._formatDeviceDropdownOption(device)}</paper-item>`)}
               </paper-listbox>
             </paper-dropdown-menu>
 
+          <div class="remote-type" >
+              <paper-dropdown-menu class="dropdown-icon" .label=${localize('editor.remote_type')}>
+                <paper-listbox slot="dropdown-content"
+                    attr-for-selected="value"
+                    @iron-select=${this._valueChanged}
+                    .configValue=${"remoteType"}
+                    selected=${this._config?.remoteType}>
+                  <paper-item value = ${"tv"}>
+                    ${localize('editor.tv_remote')}
+                  </paper-item>
+                  <paper-item value = ${"ac"}>
+                    ${localize('editor.ac_remote')}
+                  </paper-item>
+                </paper-listbox>
+              </paper-dropdown-menu>
+          </div class = "remote-type">
 
-            <div class= "div-options">
-            ${['1', '2', '3', '4', '5'].map((preset) =>
+          <div class= "div-options">
+            ${['1', '2', '3', '4', '5', '6'].map((preset) =>
               html `
               <ha-card class = "preset-card ${classMap({
                   "on": this.preset === preset,
@@ -117,7 +132,8 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
               </ha-card>`
             )
           }
-            </div class= "div-options">
+          </div class= "div-options">
+
 
       </div class="card-config">
     </div class="option">

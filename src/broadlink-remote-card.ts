@@ -69,12 +69,12 @@ export class RemoteCard extends LitElement {
       return {type: "custom:remote-card"};
     }
 
-
     return {
       type: "custom:remote-card",
       selected_device_mac: Devices[0].mac,
       all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type})),
-      preset: "1"
+      preset: "1",
+      remoteType: "tv", //remote type {tv, ac}
     };
 
   }
@@ -118,44 +118,74 @@ export class RemoteCard extends LitElement {
       <ha-card>
         <div class="remote ${classMap({
             "learning-on": this.learningOn === true,
-            "learning-off": this.learningOn === false})}">
-          <div class="row">
-           ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
-           ${this._renderButton('powerOff', 'mdi:power-off', 'PowerOff')}
-           ${this._renderButton('power', 'mdi:power', 'Power')}
-          </div>
-          <div class="sep"></div>
-          <div class="row">
-            ${this._renderButton('back', 'mdi:arrow-left', 'Back')}
-            ${this._renderButton('info', 'mdi:asterisk', 'Info')} ${this._renderButton('home', 'mdi:home', 'Home')}
-          </div>
-          <div class="sep"></div>
-          <div class="row">
-            ${this._renderButton('up', 'mdi:chevron-up', 'Up')}
-          </div>
-          <div class="row">
-            ${this._renderButton('left', 'mdi:chevron-left', 'Left')}
-            ${this._renderButton('select', 'mdi:checkbox-blank-circle', 'Select')}
-            ${this._renderButton('right', 'mdi:chevron-right', 'Right')}
-          </div>
-          <div class="row">
-           ${this._renderButton('down', 'mdi:chevron-down', 'Down')}
-          </div>
-          <div class="sep"></div>
-          <div class="row">
-            ${this._renderButton('reverse', 'mdi:rewind', 'Rewind')}
-            ${this._renderButton('play', 'mdi:play-pause', 'Play/Pause')}
-            ${this._renderButton('forward', 'mdi:fast-forward', 'Fast-Forward')}
-          </div>
-          <div class="sep"></div>
-              <div class="row">
-                ${this._renderButton('volume_mute', 'mdi:volume-mute', 'Volume Mute')}
-                ${this._renderButton('volume_down', 'mdi:volume-minus', 'Volume Down')}
-                ${this._renderButton('volume_up', 'mdi:volume-plus', 'Volume Up')}
-              </div>
+          "learning-off": this.learningOn === false
+        })}">
+          ${this.config.remoteType === "tv" ? this._renderTvRemote() : this.config.remoteType === 'ac' ? this._renderAcRemote() : html ``}
         </div>
       </ha-card>
     `;
+  }
+
+  private _renderTvRemote(): TemplateResult | void{
+    return html`
+    <div class="row">
+      ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
+      ${this._renderButton('powerOff', 'mdi:power-off', 'PowerOff')}
+      ${this._renderButton('power', 'mdi:power', 'Power')}
+    </div>
+   <div class="sep"></div>
+   <div class="row">
+     ${this._renderButton('back', 'mdi:arrow-left', 'Back')}
+     ${this._renderButton('info', 'mdi:asterisk', 'Info')}
+     ${this._renderButton('home', 'mdi:home', 'Home')}
+   </div>
+   <div class="sep"></div>
+   <div class="row">
+     ${this._renderButton('up', 'mdi:chevron-up', 'Up')}
+   </div>
+   <div class="row">
+     ${this._renderButton('left', 'mdi:chevron-left', 'Left')}
+     ${this._renderButton('select', 'mdi:checkbox-blank-circle', 'Select')}
+     ${this._renderButton('right', 'mdi:chevron-right', 'Right')}
+   </div>
+   <div class="row">
+    ${this._renderButton('down', 'mdi:chevron-down', 'Down')}
+   </div>
+   <div class="sep"></div>
+   <div class="row">
+     ${this._renderButton('reverse', 'mdi:rewind', 'Rewind')}
+     ${this._renderButton('play', 'mdi:play-pause', 'Play/Pause')}
+     ${this._renderButton('forward', 'mdi:fast-forward', 'Fast-Forward')}
+   </div>
+   <div class="sep"></div>
+    <div class="row">
+      ${this._renderButton('volume_mute', 'mdi:volume-mute', 'Volume Mute')}
+      ${this._renderButton('volume_down', 'mdi:volume-minus', 'Volume Down')}
+      ${this._renderButton('volume_up', 'mdi:volume-plus', 'Volume Up')}
+    </div>
+    `
+  }
+
+  private _renderAcRemote(): TemplateResult | void {
+    return html`
+    <div class="row">
+      ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
+      ${this._renderButton('powerOffAc', 'mdi:power-off', 'PowerOffAc')}
+      ${this._renderButton('powerAc', 'mdi:power', 'PowerAc')}
+    </div>
+    <div class="row">
+     ${this._renderButton('thermometer-minus-ac', 'mdi:thermometer-minus', 'thermometer-minus-ac')}
+     ${this._renderButton('thermometer-plus-ac', 'mdi:thermometer-plus', 'thermometer-plus-ac')}
+     ${this._renderButton('power-sleep-ac', 'mdi:power-sleep', 'power-sleep-ac')}
+   </div>
+   <div class="row">
+     ${this._renderButton('fanAC', 'mdi:fan-speed-1', 'fan-speed-1-AC')}
+     ${this._renderButton('fanAC2', 'mdi:fan-speed-2', 'fan-speed-2-AC')}
+     ${this._renderButton('fanAC3', 'mdi:fan-speed-3', 'fan-speed-3-AC')}
+   </div>
+
+    `
+
   }
 
   private _renderButton(button: string, icon: string, title: string): TemplateResult {
