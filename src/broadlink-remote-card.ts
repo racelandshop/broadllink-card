@@ -92,10 +92,9 @@ export class RemoteCard extends LitElement {
     this.config = {
       ...config,
       preset: String(config.preset) //Typecast the "1" above. For some reason is being converted into a number for some reason.
-    };
+    }
   }
 
-  // https://lit.dev/docs/components/lifecycle/#reactive-update-cycle-performing
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this.config) {
       return false;
@@ -103,7 +102,6 @@ export class RemoteCard extends LitElement {
     return hasConfigOrEntityChanged(this, changedProps, true);
   }
 
-  // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
     if (this.config.show_warning || !(this.config.selected_device_mac)) {
       return this._showWarning(localize('common.show_warning'));
@@ -117,7 +115,7 @@ export class RemoteCard extends LitElement {
     return html`
       <ha-card>
         <div class="remote ${classMap({
-            "learning-on": this.learningOn === true,
+          "learning-on": this.learningOn === true,
           "learning-off": this.learningOn === false
         })}">
           ${this.config.remoteType === "tv" ? this._renderTvRemote() : this.config.remoteType === 'ac' ? this._renderAcRemote() : html ``}
@@ -133,31 +131,31 @@ export class RemoteCard extends LitElement {
       ${this._renderButton('powerOff', 'mdi:power-off', 'PowerOff')}
       ${this._renderButton('power', 'mdi:power', 'Power')}
     </div>
-   <div class="sep"></div>
-   <div class="row">
-     ${this._renderButton('back', 'mdi:arrow-left', 'Back')}
-     ${this._renderButton('info', 'mdi:asterisk', 'Info')}
-     ${this._renderButton('home', 'mdi:home', 'Home')}
-   </div>
-   <div class="sep"></div>
-   <div class="row">
-     ${this._renderButton('up', 'mdi:chevron-up', 'Up')}
-   </div>
-   <div class="row">
-     ${this._renderButton('left', 'mdi:chevron-left', 'Left')}
-     ${this._renderButton('select', 'mdi:checkbox-blank-circle', 'Select')}
-     ${this._renderButton('right', 'mdi:chevron-right', 'Right')}
-   </div>
-   <div class="row">
+    <div class="sep"></div>
+    <div class="row">
+      ${this._renderButton('back', 'mdi:arrow-left', 'Back')}
+      ${this._renderButton('info', 'mdi:asterisk', 'Info')}
+      ${this._renderButton('home', 'mdi:home', 'Home')}
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      ${this._renderButton('up', 'mdi:chevron-up', 'Up')}
+    </div>
+    <div class="row">
+      ${this._renderButton('left', 'mdi:chevron-left', 'Left')}
+      ${this._renderButton('select', 'mdi:checkbox-blank-circle', 'Select')}
+      ${this._renderButton('right', 'mdi:chevron-right', 'Right')}
+    </div>
+    <div class="row">
     ${this._renderButton('down', 'mdi:chevron-down', 'Down')}
-   </div>
-   <div class="sep"></div>
-   <div class="row">
-     ${this._renderButton('reverse', 'mdi:rewind', 'Rewind')}
-     ${this._renderButton('play', 'mdi:play-pause', 'Play/Pause')}
-     ${this._renderButton('forward', 'mdi:fast-forward', 'Fast-Forward')}
-   </div>
-   <div class="sep"></div>
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      ${this._renderButton('reverse', 'mdi:rewind', 'Rewind')}
+      ${this._renderButton('play', 'mdi:play-pause', 'Play/Pause')}
+      ${this._renderButton('forward', 'mdi:fast-forward', 'Fast-Forward')}
+    </div>
+    <div class="sep"></div>
     <div class="row">
       ${this._renderButton('volume_mute', 'mdi:volume-mute', 'Volume Mute')}
       ${this._renderButton('volume_down', 'mdi:volume-minus', 'Volume Down')}
@@ -183,9 +181,7 @@ export class RemoteCard extends LitElement {
      ${this._renderButton('fanAC2', 'mdi:fan-speed-2', 'fan-speed-2-AC')}
      ${this._renderButton('fanAC3', 'mdi:fan-speed-3', 'fan-speed-3-AC')}
    </div>
-
     `
-
   }
 
   private _renderButton(button: string, icon: string, title: string): TemplateResult {
