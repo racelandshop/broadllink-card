@@ -66,9 +66,11 @@ export class RemoteCard extends LitElement {
   public static async getStubConfig(hass: HomeAssistant): Promise<Record<string, unknown>> {
     const Devices = await fetchDevicesMac(hass).then((resp) => { return resp })
     if (Devices.length === 0) {
-      return {type: "custom:remote-card"};
+      return {
+        type: "custom:remote-card",
+        all_devices: [],
+        selected_device_mac: ''};
     }
-
     return {
       type: "custom:remote-card",
       selected_device_mac: Devices[0].mac,

@@ -32,7 +32,7 @@ const plugins = [
 
 export default [
   {
-    input: 'src/remote-card.ts',
+    input: 'src/broadlink-remote-card.ts',
     output: {
       dir: 'dist',
       format: 'es',

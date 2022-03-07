@@ -7,7 +7,5 @@
 
 ### Backend side:
  - Allow the devices in backend to be registered as proper entities (just for remote or for a selection of devices) > not sure if homeassistant suports this
- - Type-hinting
- - The card in the frontend should not render until the discovery process is done.
- - Test suite? check broadlink integration
  - How to handle a locked broadlink?
+ - Test suite? check broadlink integration
