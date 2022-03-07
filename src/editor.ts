@@ -102,8 +102,9 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
                 : this._config?.all_devices.map(device => html`<paper-item value=${device.mac}><ha-icon .icon=${"mdi:remote"}></ha-icon>${this._formatDeviceDropdownOption(device)}</paper-item>`)}
               </paper-listbox>
             </paper-dropdown-menu>
-
-          <div class="remote-type" >
+          ${this._config?.selected_device_mac !== '' ?
+            html`
+            <div class="remote-type" >
               <paper-dropdown-menu class="dropdown-icon" .label=${localize('editor.remote_type')}>
                 <paper-listbox slot="dropdown-content"
                     attr-for-selected="value"
@@ -119,9 +120,10 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
                 </paper-listbox>
               </paper-dropdown-menu>
           </div class = "remote-type">
-
+          `:
+        ``}
           <div class= "div-options">
-            ${['1', '2', '3', '4', '5', '6'].map((preset) =>
+            ${this._config?.selected_device_mac !== '' ? ['1', '2', '3', '4', '5', '6'].map((preset) =>
               html `
               <ha-card class = "preset-card ${classMap({
                   "on": this.preset === preset,
@@ -130,7 +132,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
                   .actionHandler=${actionHandler({ hasHold: hasAction() })}>
                   ${preset}
               </ha-card>`
-            )
+            ) : html``
           }
           </div class= "div-options">
 
@@ -163,9 +165,14 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       if (this._config?.all_devices) {
         this._config.all_devices = Devices;
         if (!(this._config.all_devices.map(device => device.mac).includes(this._config.selected_device_mac))) {
-          this._config.selected_device_mac = ""
+          this._config.selected_device_mac = "";
+          delete this._config.preset;
+          delete this._config.remoteType;
+          fireEvent(this, "config-changed", { config: this._config });
+        } else {
+          fireEvent(this, 'config-changed', { config: this._config });
         }
-        fireEvent(this, 'config-changed', { config: this._config })
+
       }
 
     }
