@@ -85,11 +85,11 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     }
     return html`
       <div class="card-config">
-          <ha-card class=${classMap({"spin": this._discovering === true})}
-            @action=${this._handleAction}
-            .actionHandler=${actionHandler({ hasHold: hasAction() })}>
-                ${localize('editor.discover')}
-          </ha-card>
+        <ha-card class=${classMap({"spin": this._discovering === true})}
+          @action=${this._handleAction}
+          .actionHandler=${actionHandler({ hasHold: hasAction() })}>
+              ${localize('editor.discover')}
+        </ha-card>
         <div class="option" .option=${'required'}>
             <paper-dropdown-menu class="dropdown-icon" .label=${localize('editor.remote')}>
               <paper-listbox slot="dropdown-content"
@@ -135,6 +135,24 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
             ) : html``
           }
           </div class= "div-options">
+
+        <div class = "teste">
+          <hui-action-editor
+              .label="${this.hass.localize(
+                "editor.remote"
+              )} (${this.hass.localize(
+                "editor.remote"
+              )})"
+              .hass=${this.hass}
+              .config=${this._tap_action}
+
+              .configValue=${"tap_action"}
+              .tooltipText=${this.hass.localize(
+                "editor.remote"
+              )}
+              @value-changed=${this._valueChanged}
+            ></hui-action-editor>
+        </div>
 
 
       </div class="card-config">
