@@ -76,7 +76,7 @@ export class RemoteCard extends LitElement {
       selected_device_mac: Devices[0].mac,
       all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type})),
       preset: "1",
-      remoteType: "tv", //remote type {tv, ac}
+      remote_type: "tv", //remote type {tv, ac}
     };
 
   }
@@ -120,7 +120,7 @@ export class RemoteCard extends LitElement {
           "learning-on": this.learningOn === true,
           "learning-off": this.learningOn === false
         })}">
-          ${this.config.remoteType === "tv" ? this._renderTvRemote() : this.config.remoteType === 'ac' ? this._renderAcRemote() : html ``}
+          ${this.config.remote_type === "tv" ? this._renderTvRemote() : this.config.remote_type === 'ac' ? this._renderAcRemote() : html ``}
         </div>
       </ha-card>
     `;

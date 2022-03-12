@@ -5,13 +5,13 @@
     "show_warning": "Warning: Nenhum comando Universal da Broadlink universal selecionado. O comando pretendido esta corretamente ligado a network?",
     "show_error": "Erro"
   },
-  "info":{
+  "info": {
     "card_name": "Carta Comandos da Broadlink",
     "description": "Uma carta para os comandos universais da broadlink"
   },
   "editor": {
     "discover": "Descobrir/Atualizar broadlinks",
-    "remote_type": "Comando",
+    "remoteType": "Comando",
     "remote": "Comando (MAC)",
     "no_broadlinks": "Nenhuma broadlink disponivel",
     "tv_remote": "Televisão",
