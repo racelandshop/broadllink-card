@@ -1,6 +1,5 @@
 //import { HomeAssistant } from "../types";
 
-//TODO type-hint
 
 export interface CommandConfig {
     sucess:string

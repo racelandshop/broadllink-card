@@ -1,6 +1,7 @@
 ## Possible improvements:
 
 ### Frontend side:
+ - Add an option to alter theme in the GUI
  - I would like to avoid to have to record the avaiable remotes in each card configuration. Maybe save in the frontend object
  - Improve shouldUpdate in editor
 

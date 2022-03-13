@@ -12,6 +12,8 @@
   "editor": {
     "discover": "Discover/Update broalinks",
     "remote": "Remote (MAC)",
-    "no_broadlinks": "No available broadlink to use"
+    "remoteType": "Remote",
+    "tv_remote": "TV",
+    "ac_remote": "Air conditioner"
   }
 }
