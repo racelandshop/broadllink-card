@@ -8,7 +8,7 @@ import { RemoteCardConfig } from './types';
 import { customElement, property, state } from 'lit/decorators';
 import { classMap } from "lit/directives/class-map";
 import { localize } from './localize/localize';
-import { discoverDevices } from './helpers'
+import { discoverDevices, defineDefault } from './helpers'
 import { remoteConfigSchema } from './schema'
 
 @customElement('remote-card-editor')
@@ -88,12 +88,14 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       "remote_type": this._config?.remote_type
     }
 
+    const presets = ['1', '2', '3', '4', '5', '6']
+
     return html`
       <div class="card-config">
         <ha-card class=${classMap({"spin": this._discovering === true})}
           @action=${this._handleAction}
           .actionHandler=${actionHandler({ hasHold: hasAction() })}>
-              ${localize('editor.discover')}
+            ${localize('editor.discover')}
         </ha-card>
 
 
@@ -108,7 +110,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
         </div>
 
         <div class= "div-options">
-          ${this._config?.selected_device_mac !== '' ? ['1', '2', '3', '4', '5', '6'].map((preset) =>
+          ${this._config?.selected_device_mac !== undefined ? presets.map((preset) =>
             html `
             <ha-card class = "preset-card ${classMap({
                 "on": this.preset === preset,
@@ -133,7 +135,6 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
   }
 
 
-
   private async loadCardHelpers(): Promise<void> {
     this._helpers = await (window as any).loadCardHelpers();
   }
@@ -147,19 +148,19 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       this._discovering = false
       if (this._config?.all_devices) {
         this._config.all_devices = Devices;
-        if (!(this._config.all_devices.map(device => device.mac).includes(this._config.selected_device_mac))) {
-          this._config.selected_device_mac = "";
+        const active_selected_mac = defineDefault(this._config.selected_device_mac)
+        if (!(this._config.all_devices.map(device => device.mac).includes(active_selected_mac))) {
+          delete this._config.selected_device_mac;
           delete this._config.preset;
           delete this._config.remote_type;
           fireEvent(this, "config-changed", { config: this._config });
         } else {
           fireEvent(this, 'config-changed', { config: this._config });
         }
-
       }
-
     }
   }
+
 
   private _changePreset(key:string): void {
     if (!this._config || !this.hass) {
@@ -174,52 +175,22 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     if (!this._config || !this.hass) {
       return;
     }
-    const newData = ev.detail.value;
+    let newData = ev.detail.value;
     if (newData) {
-      console.log("the new data", newData)
-      this._config = { ...this._config, ...newData }
+      if (newData.selected_device_mac !== undefined && this._config.preset === undefined) {
+        newData = {
+          ...newData,
+          preset: '1'
+        };
+      }
+      this._config = { ...this._config, ...newData };
       this.dispatchEvent(
         new CustomEvent("config-changed", { detail: { config: this._config } })
       );
     }
-
-    //if (target.select === localize('editor.no_broadlinks')) {
-    //  return
-    //}TODO: remote no broadlink options and features in the card editor
   }
 
 
-  private _formatDeviceDropdownOption(device):string {
-    return device.device_type + " ("  + device.mac + ")"
-  } //TODO deprecated, remove OR add to the helpers functions and import into the schema
-
-
-  private _valueChanged(ev): void {
-    if (!this._config || !this.hass) {
-      return;
-    }
-    const target = ev.target;
-    if (this[`_${target.configValue}`] === target.selected) {
-      return;
-    }
-    if (target.select === localize('editor.no_broadlinks')) {
-      return
-    }
-
-    if (target.configValue) {
-      if (target.selected === '') {
-        const tmpConfig = { ...this._config };
-        delete tmpConfig[target.configValue];
-        this._config = tmpConfig;
-      } else {
-        this._config = {
-          ...this._config,
-          [target.configValue]: target.checked !== undefined ? target.checked : target.selected,
-        };
-      }
-    }
-    fireEvent(this, 'config-changed', { config: this._config });
-  }
 
 
   static get styles(): CSSResultGroup {
@@ -227,7 +198,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       ha-card{
         width: 40%;
         height: 30%;
-        background-color: var(--primary-background-color);
+        background-color: var(--ha-card-background);
         box-shadow: -2px -2px 5px #2c2c2c , 2px 2px 5px #191919;
         cursor: pointer;
       }
@@ -270,6 +241,10 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
         }
       }
 
+      .box {
+        padding-top: 30px;
+      }
+
       .div-options {
         width: 60%;
         display: flex;
@@ -280,33 +255,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
         flex-direction: row;
         align-content: stretch;
       }
-      .option {
-        padding: 4px 0px;
-        cursor: pointer;
-      }
-      .row {
-        display: flex;
-        margin-bottom: -14px;
-        pointer-events: none;
-      }
-      .title {
-        padding-left: 16px;
-        margin-top: -6px;
-        pointer-events: none;
-      }
-      .secondary {
-        padding-left: 40px;
-        color: var(--secondary-text-color);
-        pointer-events: none;
-      }
-      .values {
-        padding-left: 16px;
-        background: var(--secondary-background-color);
-        display: grid;
-      }
-      ha-formfield {
-        padding-bottom: 8px;
-      }
+
     `;
   }
 }

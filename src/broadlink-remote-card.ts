@@ -68,8 +68,8 @@ export class RemoteCard extends LitElement {
     if (Devices.length === 0) {
       return {
         type: "custom:remote-card",
-        all_devices: [],
-        selected_device_mac: ''};
+        all_devices: []
+      };
     }
     return {
       type: "custom:remote-card",
@@ -187,22 +187,22 @@ export class RemoteCard extends LitElement {
   }
 
   private _renderButton(button: string, icon: string, title: string): TemplateResult {
-      return html`
-          <ha-icon-button
-          class="remoteButton ${classMap({
-            "learning-on-changeMode": this.learningOn === true && button === "learningMode",
-            "learning-on-button": this.learningOn === true && button !== "learningMode" && this.buttonBeingLearned !== title,
-            "learning-on-button-lock": this.learningOn === true && button !== "learningMode" && this.learningLock === true && this.buttonBeingLearned === title,
-            "learning-off": this.learningOn === false})}"
-            button=${button}
-            title=${title}
-            @action=${this._handleAction}
-            .actionHandler=${actionHandler({
-              hasHold: hasAction(this.config.hold_action),
-            })}
-          >
-            <ha-icon .icon=${icon}></ha-icon>
-          </ha-icon-button>
+    return html`
+      <ha-icon-button
+        class="remoteButton ${classMap({
+          "learning-on-changeMode": this.learningOn === true && button === "learningMode",
+          "learning-on-button": this.learningOn === true && button !== "learningMode" && this.buttonBeingLearned !== title,
+          "learning-on-button-lock": this.learningOn === true && button !== "learningMode" && this.learningLock === true && this.buttonBeingLearned === title,
+          "learning-off": this.learningOn === false})}"
+          button=${button}
+          title=${title}
+          @action=${this._handleAction}
+          .actionHandler=${actionHandler({
+            hasHold: hasAction(this.config.hold_action),
+          })}
+        >
+        <ha-icon .icon=${icon}></ha-icon>
+      </ha-icon-button>
         `;
   }
 
@@ -271,7 +271,7 @@ export class RemoteCard extends LitElement {
   static get styles(): CSSResultGroup {
     return css`
       ha-card {
-        background-color: var(--primary-background-color);
+        background-color: var(--ha-card-background);
       }
 
       .remote {
@@ -300,7 +300,7 @@ export class RemoteCard extends LitElement {
 
       .remoteButton{
         border-radius: 10px;
-        background-color: var(--primary-background-color)
+        background-color: var(--ha-card-background)
       }
 
       .remoteButton.learning-on-changeMode{
