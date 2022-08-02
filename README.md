@@ -59,6 +59,10 @@ Security mode options are (0 = none, 1 = WEP, 2 = WPA1, 3 = WPA2, 4 = WPA1/2)
 
 For more information you can check the amazing [python-broadlink](https://github.com/mjg59/python-broadlink) repository.
 
+
+Note for dev containers users: In order to the broadlink card to work on the dev container, you should add the following to the the .devcontainer.json file: 
+```runArgs: {--network=host}```
+
 ## FEATURES
 
 ### Card Overview
