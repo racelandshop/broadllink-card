@@ -1,0 +1,27 @@
+{
+    "common": {
+      "version": "Versione",
+      "invalid_configuration": "Configurazione non valida",
+      "show_warning": "Avvertenza: nessun telecomando universale Broadlink selezionato. Il telecomando è collegato correttamente alla rete?",
+      "show_error": "Mostra errore",
+      "save": "Salva"
+    },
+    "info":{
+      "card_name": "Scheda remota Broadlink",
+      "description": "Una scheda remota per telecomandi universali Broadlink"
+    },
+    "editor": {
+      "add_remote_error": "Esiste già un telecomando con quel nome",
+      "add_remote_error_none": "Si prega di dare un nome al telecomando",
+      "discover": "Aggiornare Broadlink",
+      "remote": "Telecomando (MAC)",
+      "remoteType": "Telecomando",
+      "name": "Nome",
+      "current_remote": "Telecomando attuale",
+      "error": "Questo dispositivo broadlink è bloccato, segui le istruzioni per sbloccarlo",
+      "remove_remote": "Rimuovi",
+      "add_remote": "Aggiungi",
+      "tv_remote": "Televisione",
+      "ac_remote": "Condizionatore"
+    }
+  }

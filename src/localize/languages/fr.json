@@ -1,0 +1,27 @@
+{
+    "common": {
+      "version": "Version",
+      "invalid_configuration": "Configuration invalide",
+      "show_warning": "Avertissement : Aucune télécommande universelle Broadlink sélectionnée. La télécommande est-elle correctement connectée au réseau ?",
+      "show_error": "Afficher l'erreur",
+      "save": "Sauver"
+    },
+    "info":{
+      "card_name": "Carte à distance Broadlink",
+      "description": "Une carte à distance pour les télécommandes universelles broadlink"
+    },
+    "editor": {
+      "add_remote_error": "Une télécommande portant ce nom existe déjà",
+      "add_remote_error_none": "Veuillez donner un nom à la télécommande",
+      "discover": "Actualiser Broadlinks",
+      "remote": "Télécommande (MAC)",
+      "remoteType": "Télécommande",
+      "name": "Nom",
+      "current_remote": "Télécommande actuelle",
+      "error": "Cet appareil Broadlink est verrouillé, veuillez suivre les instructions pour le déverrouiller",
+      "remove_remote": "Éliminer",
+      "add_remote": "Ajouter",
+      "tv_remote": "Télévision",
+      "ac_remote": "Climatiseur"
+    }
+  }

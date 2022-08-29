@@ -3,16 +3,24 @@
     "version": "Version",
     "invalid_configuration": "Invalid configuration",
     "show_warning": "Warning: No Broadlink universal remote selected. Is the remote correctly connected to the network?",
-    "show_error": "Show Error"
+    "show_error": "Show Error",
+    "save": "Save"
   },
   "info":{
     "card_name": "Broadlink Remote Card",
     "description": "A remote card for broadlink universal remotes"
   },
   "editor": {
-    "discover": "Discover/Update broalinks",
+    "add_remote_error": "A remote with that name already exists",
+    "add_remote_error_none": "Please give a name to the remote",
+    "discover": "Refresh broadlinks",
     "remote": "Remote (MAC)",
     "remoteType": "Remote",
+    "name": "Name",
+    "current_remote": "Current Remote",
+    "error": "This broadlink device is locked, please follow the instructions to unlock",
+    "remove_remote": "Remove Remote",
+    "add_remote": "Add Remote",
     "tv_remote": "TV",
     "ac_remote": "Air conditioner"
   }

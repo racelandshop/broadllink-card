@@ -8,26 +8,22 @@ import {
   CSSResultGroup,
 } from 'lit';
 import { classMap } from "lit/directives/class-map";
-import { customElement, property, state } from "lit/decorators";
+import { customElement, eventOptions, property, queryAsync, state } from "lit/decorators";
 import {
   HomeAssistant,
   hasConfigOrEntityChanged,
-  hasAction,
-  ActionHandlerEvent,
   LovelaceCardEditor,
   getLovelace,
+  debounce,
 } from 'custom-card-helpers';
-
-import { sendCommand, learningMode} from "./webhook"
-
 import { fetchDevicesMac } from "./helpers"
-
 import './editor';
-
 import type { RemoteCardConfig } from './types';
-import { actionHandler } from './action-handler-directive';
-import { CARD_VERSION } from './const';
+import { CARD_VERSION, mdiIcon, UNAVAILABLE_STATES } from './const';
 import { localize } from './localize/localize';
+import { RippleHandlers } from '@material/mwc-ripple/ripple-handlers';
+import { Ripple } from '@material/mwc-ripple';
+import { showBroadlinkDialog } from './show-more-info-dialog';
 
 /* eslint no-console: 0 */
 console.info(
@@ -44,6 +40,12 @@ console.info(
   preview: true,
 });
 
+declare global {
+  // for fire event
+  interface HASSDomEvents {
+    "add-remote": { broadlinkInfo: RemoteCardConfig , all_devices: any};
+  }
+}
 
 @customElement('remote-card')
 export class RemoteCard extends LitElement {
@@ -61,7 +63,55 @@ export class RemoteCard extends LitElement {
 
   @property({ attribute: false }) buttonBeingLearned = "none";
 
-  @state() private config!: RemoteCardConfig;
+  @property({ attribute: false }) public config!: RemoteCardConfig;
+
+  @state() private _shouldRenderRipple = false;
+
+  @queryAsync("mwc-ripple") private _ripple!: Promise<Ripple | null>;
+
+  private _resizeObserver?: ResizeObserver;
+
+  @property({ type: String }) public layout = "big";
+
+  protected async firstUpdated(): Promise<void> {
+    this._attachResizeObserver();
+    window.addEventListener("add-remote", (ev: any) => {
+      this.config.preset = ev.detail.broadlinkInfo.name
+    });
+  }
+
+
+  private async _attachResizeObserver(): Promise<void> {
+    if (!this._resizeObserver) {
+      this._resizeObserver = new ResizeObserver(
+        debounce(
+          (entries: any) => {
+            const rootGrid = this.closest("div");
+            const entry = entries[0];
+
+            if (
+              rootGrid &&
+              entry.contentRect.width <= rootGrid.clientWidth / 2 &&
+              entry.contentRect.width > rootGrid.clientWidth / 3
+            ) {
+              this.layout = "medium";
+            } else if (
+              rootGrid &&
+              entry.contentRect.width <= rootGrid.clientWidth / 3 &&
+              entry.contentRect.width !== 0
+            ) {
+              this.layout = "small";
+            } else {
+            }
+          },
+          250,
+          true
+        )
+      );
+    }
+
+    this._resizeObserver.observe(this);
+  }
 
   public static async getStubConfig(hass: HomeAssistant): Promise<Record<string, unknown>> {
     const Devices = await fetchDevicesMac(hass).then((resp) => { return resp })
@@ -73,14 +123,13 @@ export class RemoteCard extends LitElement {
     }
     return {
       type: "custom:remote-card",
+      show_name: true,
       selected_device_mac: Devices[0].mac,
-      all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type})),
-      preset: "1",
-      remote_type: "tv", //remote type {tv, ac}
+      all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
+      preset: "",
     };
 
   }
-
 
   public setConfig(config: RemoteCardConfig): void {
     if (!config) {
@@ -93,7 +142,7 @@ export class RemoteCard extends LitElement {
 
     this.config = {
       ...config,
-      preset: String(config.preset) //Typecast the "1" above. For some reason is being converted into a number for some reason.
+      preset: String(config.preset)
     }
   }
 
@@ -105,6 +154,8 @@ export class RemoteCard extends LitElement {
   }
 
   protected render(): TemplateResult | void {
+    this.config.icon = mdiIcon
+
     if (this.config.show_warning || !(this.config.selected_device_mac)) {
       return this._showWarning(localize('common.show_warning'));
 
@@ -113,131 +164,85 @@ export class RemoteCard extends LitElement {
     if (this.config.show_error) {
       return this._showError(localize('common.show_error'));
     }
+    let index = 0;
+    if (this.config?.all_devices) {
+      for (let i = 0; i < this.config?.all_devices?.length; i++) {
+        if (this.config?.all_devices[i].mac === this.config?.selected_device_mac) {
+          index = i
+        }
+      }
+    }
+    const states = this.config?.all_devices[index].is_locked
 
     return html`
-      <ha-card>
-        <div class="remote ${classMap({
-          "learning-on": this.learningOn === true,
-          "learning-off": this.learningOn === false
-        })}">
-          ${this.config.remote_type === "tv" ? this._renderTvRemote() : this.config.remote_type === 'ac' ? this._renderAcRemote() : html ``}
-        </div>
+     <ha-card
+      class=${classMap({
+        "big-card": this.layout === "big",
+        "small-card": this.layout === "small",
+        "medium-card": this.layout === "medium",
+        "unavailable": states === true
+              })}
+        @focus=${this.handleRippleFocus}
+        @blur=${this.handleRippleBlur}
+        @mousedown=${this.handleRippleActivate}
+        @mouseup=${this.handleRippleDeactivate}
+        @touchstart=${this.handleRippleActivate}
+        @touchend=${this.handleRippleDeactivate}
+        @touchcancel=${this.handleRippleDeactivate}
+        @click=${this._showBroadlinkDialog}
+        role="button"
+
+      >
+        <ha-state-icon class=${classMap({
+        "ha-status-icon-big": this.layout === "big",
+        "ha-status-icon-small": this.layout === "medium" ||  this.layout === "small",
+              })} .icon=${"broadcast"} >
+        </ha-state-icon>
+        ${this.config.preset
+          ? html`<span class=${classMap({
+            "rect-card": this.layout === "big",
+            "rect-card-small": this.layout === "small",
+            "rect-card-medium": this.layout === "medium"
+                  })} tabindex="-1" .title=${this.config.preset}
+              >${this.config.preset}</span
+            >`
+          : ""}
+        ${this._shouldRenderRipple ? html`<mwc-ripple></mwc-ripple>` : ""}
+        ${states
+          ? html` <unavailable-icon></unavailable-icon>`
+          : html``}
       </ha-card>
     `;
   }
 
-  private _renderTvRemote(): TemplateResult | void{
-    return html`
-    <div class="row">
-      ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
-      ${this._renderButton('powerOff', 'mdi:power-off', 'PowerOff')}
-      ${this._renderButton('power', 'mdi:power', 'Power')}
-    </div>
-    <div class="sep"></div>
-    <div class="row">
-      ${this._renderButton('back', 'mdi:arrow-left', 'Back')}
-      ${this._renderButton('info', 'mdi:asterisk', 'Info')}
-      ${this._renderButton('home', 'mdi:home', 'Home')}
-    </div>
-    <div class="sep"></div>
-    <div class="row">
-      ${this._renderButton('up', 'mdi:chevron-up', 'Up')}
-    </div>
-    <div class="row">
-      ${this._renderButton('left', 'mdi:chevron-left', 'Left')}
-      ${this._renderButton('select', 'mdi:checkbox-blank-circle', 'Select')}
-      ${this._renderButton('right', 'mdi:chevron-right', 'Right')}
-    </div>
-    <div class="row">
-    ${this._renderButton('down', 'mdi:chevron-down', 'Down')}
-    </div>
-    <div class="sep"></div>
-    <div class="row">
-      ${this._renderButton('reverse', 'mdi:rewind', 'Rewind')}
-      ${this._renderButton('play', 'mdi:play-pause', 'Play/Pause')}
-      ${this._renderButton('forward', 'mdi:fast-forward', 'Fast-Forward')}
-    </div>
-    <div class="sep"></div>
-    <div class="row">
-      ${this._renderButton('volume_mute', 'mdi:volume-mute', 'Volume Mute')}
-      ${this._renderButton('volume_down', 'mdi:volume-minus', 'Volume Down')}
-      ${this._renderButton('volume_up', 'mdi:volume-plus', 'Volume Up')}
-    </div>
-    `
+
+  private _rippleHandlers: RippleHandlers = new RippleHandlers(() => {
+    this._shouldRenderRipple = true;
+    return this._ripple;
+  });
+
+  private _showBroadlinkDialog() {
+    showBroadlinkDialog(
+      this,
+      { broadlinkInfo: this.config }
+    )
   }
 
-  private _renderAcRemote(): TemplateResult | void {
-    return html`
-    <div class="row">
-      ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
-      ${this._renderButton('powerOffAc', 'mdi:power-off', 'PowerOffAc')}
-      ${this._renderButton('powerAc', 'mdi:power', 'PowerAc')}
-    </div>
-    <div class="row">
-     ${this._renderButton('thermometer-minus-ac', 'mdi:thermometer-minus', 'thermometer-minus-ac')}
-     ${this._renderButton('thermometer-plus-ac', 'mdi:thermometer-plus', 'thermometer-plus-ac')}
-     ${this._renderButton('power-sleep-ac', 'mdi:power-sleep', 'power-sleep-ac')}
-   </div>
-   <div class="row">
-     ${this._renderButton('fanAC', 'mdi:fan-speed-1', 'fan-speed-1-AC')}
-     ${this._renderButton('fanAC2', 'mdi:fan-speed-2', 'fan-speed-2-AC')}
-     ${this._renderButton('fanAC3', 'mdi:fan-speed-3', 'fan-speed-3-AC')}
-   </div>
-    `
+  @eventOptions({ passive: true })
+  private handleRippleActivate(evt?: Event) {
+    this._rippleHandlers.startPress(evt);
   }
 
-  private _renderButton(button: string, icon: string, title: string): TemplateResult {
-    return html`
-      <ha-icon-button
-        class="remoteButton ${classMap({
-          "learning-on-changeMode": this.learningOn === true && button === "learningMode",
-          "learning-on-button": this.learningOn === true && button !== "learningMode" && this.buttonBeingLearned !== title,
-          "learning-on-button-lock": this.learningOn === true && button !== "learningMode" && this.learningLock === true && this.buttonBeingLearned === title,
-          "learning-off": this.learningOn === false})}"
-          button=${button}
-          title=${title}
-          @action=${this._handleAction}
-          .actionHandler=${actionHandler({
-            hasHold: hasAction(this.config.hold_action),
-          })}
-        >
-        <ha-icon .icon=${icon}></ha-icon>
-      </ha-icon-button>
-        `;
+  private handleRippleDeactivate() {
+    this._rippleHandlers.endPress();
   }
 
-  private _handleAction(ev: ActionHandlerEvent): void {
-    if (this.hass && this.config && ev.detail.action) {
-      const action = ev.detail.action;
-      const command = (ev.currentTarget as HTMLButtonElement).title;
+  private handleRippleFocus() {
+    this._rippleHandlers.startFocus();
+  }
 
-      if (command === 'LearningMode') {
-        this._handleToggleLearningMode(action);
-        return;
-      }
-
-      if (this.learningLock === false) {
-        this.buttonBeingLearned = command;
-      }
-
-      if (this.learningOn === true) {
-        this.learningLock = true;
-        const response = learningMode(this.hass, this.config, command, this.config.preset);
-        response.then((resp) => {
-          if (resp.sucess){
-            this.learningLock = false;
-            this.buttonBeingLearned = "none";
-            if (this.quickLearning) {
-              this.quickLearning = false;
-              this.learningOn = false;
-            }
-          }
-        })
-
-      } else if (this.learningOn === false && command !== 'LearningMode') {
-        sendCommand(this.hass, this.config, command, this.config.preset);
-      }
-    }
+  private handleRippleBlur() {
+    this._rippleHandlers.endFocus();
   }
 
   private _showWarning(error_message:string): TemplateResult {
@@ -245,15 +250,6 @@ export class RemoteCard extends LitElement {
       <hui-warning>${error_message}</hui-warning>
     `;
   }
-
-  private _handleToggleLearningMode(action): void{
-      if (this.learningLock === false) {
-        this.learningOn = !(this.learningOn);
-        if (action === "tap") {
-          this.quickLearning = true;
-        }
-      }
-    }
 
   private _showError(error: string): TemplateResult {
     const errorCard = document.createElement('hui-error-card');
@@ -270,76 +266,130 @@ export class RemoteCard extends LitElement {
 
   static get styles(): CSSResultGroup {
     return css`
-      ha-card {
-        background-color: var(--ha-card-background);
-      }
-
-      .remote {
-        padding: 38px 71px 38px 71px;
-        border-radius: 20px;
-      }
-
-      .remote.learning-on{
-        box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
-      }
-
-      .remote.learning-on{
-        box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
-      }
-
-      .remote.learning-off{
-        box-shadow: -2px -2px 5px #2c2c2c , 2px 2px 5px #191919;
-      }
-
-      ha-icon {
+      .small-card {
         cursor: pointer;
-      }
-      ha-icon-button {
-        --mdc-icon-size: 100%px;
-      }
-
-      .remoteButton{
-        border-radius: 10px;
-        background-color: var(--ha-card-background)
-      }
-
-      .remoteButton.learning-on-changeMode{
-        box-shadow: -1px -1px 5px #0000FF , 1px 1px 0px #0000FF;
-      }
-
-      .remoteButton.learning-on-button{
-        box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
-      }
-
-      .remoteButton.learning-off{
-        box-shadow: -2px -2px 5px #2c2c2c , 2px 2px 5px #191919;
-      }
-
-      .remoteButton.learning-on-button-lock{
-        box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
-        color: rgb(227 145 145)
-      }
-
-      ha-icon-button ha-icon {
         display: flex;
+        flex-direction: column;
+        align-items: left;
+        text-align: left;
+        padding: 4% 0;
+        font-size: 1.2rem;
+        height: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        font-weight: 450;
+        /* aspect-ratio: 1; */
       }
-
-      .sep{
-        padding: 25px 0px 8px 0px;
-      }
-
-      .row {
+      .medium-card {
+        cursor: pointer;
         display: flex;
-        padding: 8px 8px 8px 8px;
-        justify-content: space-evenly;
+        flex-direction: column;
+        align-items: left;
+        text-align: left;
+        padding: 4% 0;
+        font-size: 1.8rem;
+        height: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        font-weight: 450;
+        /* aspect-ratio: 1; */
+      }
+      .big-card {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
         align-items: center;
+        text-align: center;
+        padding: 4% 0;
+        font-size: 2.3rem;
+        height: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        font-weight: 450;
+      }
+      .unavailable {
+        pointer-events: none;
+      }
+      unavailable-icon {
+        position: absolute;
+        top: 11px;
+        right: 10%;
+      }
+      .rect-card-small {
+        padding: 5%;
+        padding-bottom: 4%;
+        margin-bottom: 4%;
+        margin-left: 7%;
+        white-space: nowrap;
+        display: inline-block;
+        overflow: hidden;
+        max-width: 110px;
+        text-overflow: ellipsis;
       }
 
-      .warning {
-        display: block;
-        color: black;
-        background-color: #fce588;
-        padding: 8px;
+      .rect-card-medium {
+        padding: 5%;
+        padding-bottom: 4%;
+        margin-bottom: 4%;
+        margin-left: 7%;
+        white-space: nowrap;
+        display: inline-block;
+        overflow: hidden;
+        max-width: 200px;
+        text-overflow: ellipsis;
+      }
+
+      .rect-card {
+        padding: 5%;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 350px;
+        text-overflow: ellipsis;
+      }
+
+      ha-card:focus {
+        outline: none;
+      }
+
+      .ha-status-icon-big {
+        width: 40%;
+        height: auto;
+        color: var(--paper-item-icon-color, #7b7b7b);
+        --mdc-icon-size: 100%;
+      }
+
+      .ha-status-icon-small {
+        width: 63%;
+        margin-left: 5%;
+        height: auto;
+        color: var(--paper-item-icon-color, #7b7b7b);
+        --mdc-icon-size: 100%;
+      }
+      .svg-icon {
+        fill: var(--paper-item-icon-color, #44739e);
+      }
+
+      ha-state-icon,
+      span {
+        outline: none;
+      }
+      unavailable-icon {
+        position: absolute;
+        top: 11px;
+        right: 10%;
+      }
+      .state {
+        font-size: 0.9rem;
+        color: var(--secondary-text-color);
       }
     `;
   }

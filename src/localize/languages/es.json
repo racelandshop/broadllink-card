@@ -1,0 +1,27 @@
+{
+    "common": {
+      "version": "Versión",
+      "invalid_configuration": "Configuración no válida",
+      "show_warning": "Advertencia: No se seleccionó ningún control remoto universal Broadlink. ¿El control remoto está correctamente conectado a la red?",
+      "show_error": "Mostrar error",
+      "save": "Salvar"
+    },
+    "info":{
+      "card_name": "Tarjeta remota Broadlink",
+      "description": "Una tarjeta remota para controles remotos universales de enlace amplio"
+    },
+    "editor": {
+      "add_remote_error": "Ya existe un control remoto con ese nombre",
+      "add_remote_error_none": "Por favor, dé un nombre al control remoto.",
+      "discover": "Actualizar Broadlinks",
+      "remote": "Control Remoto (MAC)",
+      "remoteType": "Control Remoto",
+      "name": "Nombre",
+      "current_remote": "Control Remoto actual",
+      "error": "Este dispositivo de enlace amplio está bloqueado, siga las instrucciones para desbloquear",
+      "remove_remote": "Quitar",
+      "add_remote": "Agregar",
+      "tv_remote": "Televisión",
+      "ac_remote": "Aire acondicionado"
+    }
+  }

@@ -3,28 +3,56 @@ import { localize } from './localize/localize';
 import { formatDeviceDropdownOption } from './helpers'
 
 export const remoteConfigSchema = (editorConfig) => {
-  const discovered_devices = editorConfig.all_devices.map((dev) => [dev.mac, formatDeviceDropdownOption(dev)]);
   const remoteTypeConfig = editorConfig.selected_device_mac !== undefined ?
     {
       name: "remote_type",
       label: localize('editor.remoteType'),
-      type: "select",
-      options: [
-        ["tv", localize('editor.tv_remote')],
-        ["ac", localize('editor.ac_remote')]
-      ],
-    } :
+      selector: {
+        select: {
+          options: [
+            {
+              value: "tv",
+              label: localize('editor.tv_remote'),
+            },
+            {
+              value: "ac",
+              label: localize('editor.ac_remote'),
+            },
+          ],
+        },
+      },
+    }
+    :
     {};
 
   return [
     {
-      name: "selected_device_mac",
-      label: localize('editor.remote'),
-      type: "select",
-      options: [
-        ...discovered_devices
-      ],
+      name: "name",
+      label: localize('editor.name'),
+      selector: { text: {} }
     },
     remoteTypeConfig
   ];
 }
+
+export const remoteEditorSchema = (editorConfig) => {
+  const discovered_devices = editorConfig.all_devices.map((dev) =>
+  {
+    return { value: dev.mac, label: formatDeviceDropdownOption(dev) }
+  }
+  );
+  return [
+    {
+      name: "selected_device_mac",
+      label: localize('editor.remote'),
+      selector: {
+        select: {
+          options: [
+            ...discovered_devices
+          ],
+        },
+      },
+    }
+  ];
+}
+

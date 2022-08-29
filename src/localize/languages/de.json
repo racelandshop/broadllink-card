@@ -1,0 +1,27 @@
+{
+    "common": {
+      "version": "Ausführung",
+      "invalid_configuration": "ungültige Konfiguration",
+      "show_warning": "Warnung: Kein Universal Broadlink Universal Command ausgewählt. Ist der vorgesehene Befehl korrekt mit dem Netzwerk verbunden?",
+      "show_error": "Fehler",
+      "save": "Speichern"
+    },
+    "info": {
+      "card_name": "Broadlink-Befehlskarte",
+      "description": "Ein Brief an Broadlink Universal Commands"
+    },
+    "editor": {
+      "add_remote_error_exists": "Es gibt bereits einen Befehl mit diesem Namen",
+      "add_remote_error_none": "Bitte geben Sie einen Namen für den Befehl ein",
+      "remote": "Befehl (MAC)",
+      "discover": "Broadlinks aktualisieren",
+      "remoteType": "Befehl",
+      "name": "Name",
+      "current_remote": "Befehl zu verwenden",
+      "error": "Der ausgewählte Broadlink ist gesperrt, bitte befolgen Sie die Anweisungen zum Entsperren",
+      "remove_remote": "Zu entfernen",
+      "add_remote": "Hinzufügen",
+      "tv_remote": "Fernseher",
+      "ac_remote": "Klimaanlage"
+    }
+  }

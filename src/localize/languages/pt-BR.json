@@ -1,0 +1,27 @@
+{
+    "common": {
+      "version": "Versão",
+      "invalid_configuration": "Configuração inválida",
+      "show_warning": "Aviso: Nenhum comando Universal da Broadlink universal selecionado. O comando pretendido esta corretamente ligado à rede?",
+      "show_error": "Erro",
+      "save": "Guardar"
+    },
+    "info": {
+      "card_name": "Carta Comandos da Broadlink",
+      "description": "Uma carta para os comandos universais da broadlink"
+    },
+    "editor": {
+      "add_remote_error_exists": "Já existe um comando com esse nome",
+      "add_remote_error_none": "Por favor introduza um nome para o comando",
+      "remote": "Comando (MAC)",
+      "discover": "Atualizar broadlinks",
+      "remoteType": "Comando",
+      "name": "Nome",
+      "current_remote": "Comando a utilizar",
+      "error": "A broadlink selecionada está bloqueada, por favor siga as instruções para desbloquear",
+      "remove_remote": "Remover",
+      "add_remote": "Adicionar",
+      "tv_remote": "Televisão",
+      "ac_remote": "Ar condicionado"
+    }
+  }

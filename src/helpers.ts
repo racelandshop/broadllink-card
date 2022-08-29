@@ -5,6 +5,8 @@ import { HomeAssistant } from "custom-card-helpers";
 export interface DeviceConfig {
   mac: string,
   device_type: string,
+  is_locked: boolean,
+  presets
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,3 +38,11 @@ export const discoverDevices = async (hass: HomeAssistant | undefined): Promise<
     }
   );
 }
+
+// export const fetchRemote = async (hass: HomeAssistant | undefined, config: RemoteCardConfig): Promise<DeviceConfig[]> => {
+//   return await fetch_remote_broadlink(hass, config).then(
+//     resp => {
+//       return resp.preset_list;
+//     }
+//   );
+// }
