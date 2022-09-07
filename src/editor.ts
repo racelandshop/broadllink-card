@@ -27,6 +27,8 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
   @state() private _presetList?: number;
 
+  @property() selectec_device_preset_list?: Array<string>;
+
   @property({ attribute: false }) _discovering?: boolean;
 
   @property() _isLocked?: boolean;
@@ -100,7 +102,10 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
   protected render(): TemplateResult | void {
     if (!this.hass || !this._helpers) {
-      return html``;
+      return html`<mwc-button class="discover ${classMap({"spin": this._discovering === true})}"
+      @action=${this._handleAction}>
+      ${localize('editor.discover')}
+    </mwc-button>`;
     }
 
     let index = 0;
@@ -111,15 +116,17 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
         }
       }
     }
-    const presets = this._config?.all_devices[index].presets
-    const selectec_device_preset_list : any= []
-    for (const [preset_name, preset_value] of Object.entries(presets)) {
-      selectec_device_preset_list.push(preset_name)
-    }
-    this._presetList = selectec_device_preset_list.length
+    const presets = this._config?.all_devices[index]?.presets;
+    if (presets) {
 
-    this._isLocked = this._config?.all_devices[index].is_locked
-    // console.log("this locked", this._config?.all_devices)
+      const selectec_device_preset_list: any = [];
+      for (const [preset_name, preset_value] of Object.entries(presets)) {
+        selectec_device_preset_list?.push(preset_name);
+      }
+      this._presetList = this.selectec_device_preset_list?.length;
+      this._isLocked = this._config?.all_devices[index].is_locked;
+      this.selectec_device_preset_list = selectec_device_preset_list;
+    }
     const remoteTypeConfigSchemaData = {
       "selected_device_mac": this._config?.selected_device_mac,
       "presets": presets
@@ -159,7 +166,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
           <div id="current">${localize('editor.current_remote')}</div>
           <div class= "div-options">
             <div class="presets">
-            ${this._config?.selected_device_mac !== undefined ? selectec_device_preset_list.map((preset) =>
+            ${this._config?.selected_device_mac !== undefined ? this.selectec_device_preset_list?.map((preset) =>
               html `
               <ha-card class = "preset-card ${classMap({
                   "on": this.preset === preset,
@@ -308,21 +315,21 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       }
 
       .discover.spin::before {
-    animation: 1.5s linear infinite spinner;
-    animation-play-state: inherit;
-    border: solid 5px #cfd0d1;
-    border-bottom-color: var(--primary-background-color);
-    border-radius: 50%;
-    border-width: 10%;
-    content: "";
-    height: 50px;
-    width: 50px;
-    position: absolute;
-    left: 50%;
-    top: 92px;
-    transform: translate3d(-50%, -50%, 0);
-    will-change: transform;
-}
+        animation: 1.5s linear infinite spinner;
+        animation-play-state: inherit;
+        border: solid 5px #cfd0d1;
+        border-bottom-color: var(--primary-background-color);
+        border-radius: 50%;
+        border-width: 10%;
+        content: "";
+        height: 50px;
+        width: 50px;
+        position: absolute;
+        left: 50%;
+        top: 92px;
+        transform: translate3d(-50%, -50%, 0);
+        will-change: transform;
+    }
 
 
 

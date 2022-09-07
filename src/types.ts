@@ -2,7 +2,7 @@ import { ActionConfig, LovelaceCard, LovelaceCardConfig, LovelaceCardEditor, Num
 import { DeviceConfig } from './helpers'
 
 declare global {
-  var __DEV__: boolean;
+  let __DEV__: boolean;
   interface HTMLElementTagNameMap {
     'remote-card-editor': LovelaceCardEditor;
     'hui-error-card': LovelaceCard;

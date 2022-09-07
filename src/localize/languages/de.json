@@ -2,7 +2,7 @@
     "common": {
       "version": "Ausführung",
       "invalid_configuration": "ungültige Konfiguration",
-      "show_warning": "Warnung: Kein Universal Broadlink Universal Command ausgewählt. Ist der vorgesehene Befehl korrekt mit dem Netzwerk verbunden?",
+      "show_warning": "Kein Broadlink erkannt",
       "show_error": "Fehler",
       "save": "Speichern"
     },

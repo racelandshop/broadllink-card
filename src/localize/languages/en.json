@@ -2,7 +2,7 @@
   "common": {
     "version": "Version",
     "invalid_configuration": "Invalid configuration",
-    "show_warning": "Warning: No Broadlink universal remote selected. Is the remote correctly connected to the network?",
+    "show_warning": "No Broadlink detected",
     "show_error": "Show Error",
     "save": "Save"
   },

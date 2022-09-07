@@ -14,7 +14,6 @@ import {
   hasConfigOrEntityChanged,
   LovelaceCardEditor,
   getLovelace,
-  debounce,
 } from 'custom-card-helpers';
 import { fetchDevicesMac } from "./helpers"
 import './editor';
@@ -69,48 +68,12 @@ export class RemoteCard extends LitElement {
 
   @queryAsync("mwc-ripple") private _ripple!: Promise<Ripple | null>;
 
-  private _resizeObserver?: ResizeObserver;
-
   @property({ type: String }) public layout = "big";
 
   protected async firstUpdated(): Promise<void> {
-    this._attachResizeObserver();
     window.addEventListener("add-remote", (ev: any) => {
       this.config.preset = ev.detail.broadlinkInfo.name
     });
-  }
-
-
-  private async _attachResizeObserver(): Promise<void> {
-    if (!this._resizeObserver) {
-      this._resizeObserver = new ResizeObserver(
-        debounce(
-          (entries: any) => {
-            const rootGrid = this.closest("div");
-            const entry = entries[0];
-
-            if (
-              rootGrid &&
-              entry.contentRect.width <= rootGrid.clientWidth / 2 &&
-              entry.contentRect.width > rootGrid.clientWidth / 3
-            ) {
-              this.layout = "medium";
-            } else if (
-              rootGrid &&
-              entry.contentRect.width <= rootGrid.clientWidth / 3 &&
-              entry.contentRect.width !== 0
-            ) {
-              this.layout = "small";
-            } else {
-            }
-          },
-          250,
-          true
-        )
-      );
-    }
-
-    this._resizeObserver.observe(this);
   }
 
   public static async getStubConfig(hass: HomeAssistant): Promise<Record<string, unknown>> {
@@ -172,6 +135,7 @@ export class RemoteCard extends LitElement {
         }
       }
     }
+    console.log("preset", this.config.preset)
     const states = this.config?.all_devices[index].is_locked
 
     return html`
@@ -198,12 +162,12 @@ export class RemoteCard extends LitElement {
         "ha-status-icon-small": this.layout === "medium" ||  this.layout === "small",
               })} .icon=${"broadcast"} >
         </ha-state-icon>
-        ${this.config.preset
+        ${this.config.preset !== "undefined"
           ? html`<span class=${classMap({
             "rect-card": this.layout === "big",
             "rect-card-small": this.layout === "small",
             "rect-card-medium": this.layout === "medium"
-                  })} tabindex="-1" .title=${this.config.preset}
+                  })} tabindex="-1" .title=${this.config.preset ? this.config.preset : ""}
               >${this.config.preset}</span
             >`
           : ""}

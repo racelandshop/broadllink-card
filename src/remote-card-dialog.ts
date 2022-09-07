@@ -414,7 +414,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
         height: 40px;
       }
       .sep{
-        padding: 13px 0px 8px 0px;
+        padding: 3vh 0px 8px 0px;
       }
 
       .row {

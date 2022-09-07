@@ -2,7 +2,7 @@
     "common": {
       "version": "Versão",
       "invalid_configuration": "Configuração inválida",
-      "show_warning": "Aviso: Nenhum comando Universal da Broadlink universal selecionado. O comando pretendido esta corretamente ligado à rede?",
+      "show_warning": "Nenhuma Broadlink detectada",
       "show_error": "Erro",
       "save": "Guardar"
     },

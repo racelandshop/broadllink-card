@@ -2,7 +2,7 @@
     "common": {
       "version": "Version",
       "invalid_configuration": "Configuration invalide",
-      "show_warning": "Avertissement : Aucune télécommande universelle Broadlink sélectionnée. La télécommande est-elle correctement connectée au réseau ?",
+      "show_warning": "Aucun Broadlink détecté",
       "show_error": "Afficher l'erreur",
       "save": "Sauver"
     },

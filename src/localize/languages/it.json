@@ -2,7 +2,7 @@
     "common": {
       "version": "Versione",
       "invalid_configuration": "Configurazione non valida",
-      "show_warning": "Avvertenza: nessun telecomando universale Broadlink selezionato. Il telecomando è collegato correttamente alla rete?",
+      "show_warning": "Nessun Broadlink rilevato",
       "show_error": "Mostra errore",
       "save": "Salva"
     },

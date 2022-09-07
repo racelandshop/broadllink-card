@@ -2,7 +2,7 @@
     "common": {
       "version": "Versión",
       "invalid_configuration": "Configuración no válida",
-      "show_warning": "Advertencia: No se seleccionó ningún control remoto universal Broadlink. ¿El control remoto está correctamente conectado a la red?",
+      "show_warning": "No se detectó Broadlink",
       "show_error": "Mostrar error",
       "save": "Salvar"
     },
