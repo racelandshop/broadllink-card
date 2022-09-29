@@ -18,9 +18,7 @@ import {
   fireEvent,
 } from 'custom-card-helpers';
 
-import { sendCommand, learningMode, removeRemote} from "./webhook"
-
-import { fetchDevicesMac } from "./helpers"
+import { sendCommand, learningMode} from "./webhook"
 
 import './editor';
 
@@ -29,7 +27,6 @@ import { actionHandler } from './action-handler-directive';
 import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { BroadlinkDialogParams } from './show-more-info-dialog';
-import { showDigitsDialog } from './show-digits-dialog';
 // import { HassDialog } from './common/dom/dialogs/make-dialog-manager';
 
 /* eslint no-console: 0 */
@@ -47,7 +44,7 @@ console.info(
   preview: true,
 });
 
-@customElement('remote-card-dialog')
+@customElement('digits-dialog')
 export class HuiMoreInfoBroadlink extends LitElement  {
 
 
@@ -167,7 +164,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
         </div>
         <div class="contentFather">
           <div class="content">
-          ${this.remoteType === "tv" ? this._renderTvRemote() : this.remoteType === 'ac' ? this._renderAcRemote() : html ``}
+          ${this._renderTvRemote()}
           </div>
         </div>
         <div class="options">
@@ -181,89 +178,46 @@ export class HuiMoreInfoBroadlink extends LitElement  {
     return html`
     <div class="row">
       ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
-      ${this._renderButton('powerOff', 'mdi:power-off', 'PowerOff')}
-      ${this._renderButton('power', 'mdi:power', 'Power')}
+      ${this._renderButton('none', 'mdi:chevron-double-down', 'Channel Down')}
+      ${this._renderButton('none', 'mdi:chevron-double-down', 'Channel Down')}
     </div>
     <div class="sep"></div>
     <div class="row">
-      ${this._renderButton('channel_up', 'mdi:chevron-double-up', 'Channel Up')}
-      ${this._renderButton('up', 'mdi:chevron-up', 'Up')}
-      ${this._renderButton('volume_up', 'mdi:volume-plus', 'Volume Up')}
-    </div>
-    <div class="row">
-      ${this._renderButton('left', 'mdi:chevron-left', 'Left')}
-      ${this._renderButton('select', 'mdi:checkbox-blank-circle', 'Select')}
-      ${this._renderButton('right', 'mdi:chevron-right', 'Right')}
-    </div>
-    <div class="row">
-      ${this._renderButton('channel_down', 'mdi:chevron-double-down', 'Channel Down')}
-      ${this._renderButton('down', 'mdi:chevron-down', 'Down')}
-      ${this._renderButton('volume_down', 'mdi:volume-minus', 'Volume Down')}
+      ${this._renderButton('number1', 'mdi:numeric-1', 'Number 1')}
+      ${this._renderButton('number2', 'mdi:numeric-2', 'Number 2')}
+      ${this._renderButton('number3', 'mdi:numeric-3', 'Number 3')}
     </div>
     <div class="sep"></div>
     <div class="row">
-      ${this._renderButton('back', 'mdi:arrow-left', 'Back')}
-      ${this._renderButton('home', 'mdi:home', 'Home')}
-      ${this._renderButton('volume_mute', 'mdi:volume-mute', 'Volume Mute')}
+      ${this._renderButton('number4', 'mdi:numeric-4', 'Number 4')}
+      ${this._renderButton('number5', 'mdi:numeric-5', 'Number 5')}
+      ${this._renderButton('number6', 'mdi:numeric-6', 'Number 6')}
     </div>
     <div class="sep"></div>
     <div class="row">
-      ${this._renderButton('reverse', 'mdi:rewind', 'Rewind')}
-      ${this._renderButton('play', 'mdi:play-pause', 'Play/Pause')}
-      ${this._renderButton('forward', 'mdi:fast-forward', 'Fast-Forward')}
+      ${this._renderButton('number7', 'mdi:numeric-7', 'Number 7')}
+      ${this._renderButton('number8', 'mdi:numeric-8', 'Number 8')}
+      ${this._renderButton('number9', 'mdi:numeric-9', 'Number 9')}
     </div>
     <div class="sep"></div>
     <div class="row">
-      ${this._renderButton('info', 'mdi:asterisk', 'Info')}
-      ${this._renderButton('digits', 'mdi:apps', 'Digits')}
-      ${this._renderButton('exit', 'mdi:close-thick', 'Exit')}
+      ${this._renderButton('none', 'mdi:chevron-double-down', 'Channel Down')}
+      ${this._renderButton('number0', 'mdi:numeric-0', 'Number 0')}
+      ${this._renderButton('none', 'mdi:chevron-double-down', 'Channel Down')}
     </div>
-    `
-  }
-
-  private _renderAcRemote(): TemplateResult | void {
-    return html`
-    <div class="row">
-      ${this._renderButton('learningMode', 'mdi:broadcast', 'LearningMode')}
-      ${this._renderButton('powerOffAc', 'mdi:power-off', 'PowerOffAc')}
-      ${this._renderButton('powerAc', 'mdi:power', 'PowerAc')}
-    </div>
-    <div class="row">
-     ${this._renderButton('thermometer-minus-ac', 'mdi:thermometer-minus', 'thermometer-minus-ac')}
-     ${this._renderButton('thermometer-plus-ac', 'mdi:thermometer-plus', 'thermometer-plus-ac')}
-     ${this._renderButton('power-sleep-ac', 'mdi:power-sleep', 'power-sleep-ac')}
-   </div>
-   <div class="row">
-     ${this._renderButton('fanAC', 'mdi:fan-speed-1', 'fan-speed-1-AC')}
-     ${this._renderButton('fanAC2', 'mdi:fan-speed-2', 'fan-speed-2-AC')}
-     ${this._renderButton('fanAC3', 'mdi:fan-speed-3', 'fan-speed-3-AC')}
-   </div>
+    <div class="sep"></div>
     `
   }
 
   private _renderButton(button: string, icon: string, title: string): TemplateResult {
     return html`
-    ${button === "digits" ? html`
       <ha-icon-button
-          class="remoteButton"
-            button=${button}
-            title=${title}
-            @action=${this.showDigitsDialog}
-            .actionHandler=${actionHandler({
-        hasHold: hasAction(this.config.hold_action),
-      })}
-          >
-          <ha-icon .icon=${icon}></ha-icon>
-        </ha-icon-button>
-    ` : html`
-    <ha-icon-button
         class="remoteButton ${classMap({
           "learning-on-changeMode": this.learningOn === true && button === "learningMode",
-          "learning-on-button": this.learningOn === true && button !== "learningMode" && button !== "digits",
-          "learning-on-button-lock": this.learningOn === true && button !== "learningMode" && this.learningLock === true && this.buttonBeingLearned === title && button !== "digits",
-          "learning-off": this.learningOn === false,
-          "remoteButtonPower": button === "power" || button === "powerAc",
-          "buttonRound": button === "channel_up" || button === "channel_down" || button === "volume_up" || button === "volume_down"
+          "learning-on-button": this.learningOn === true && button !== "learningMode" && button !== "none",
+          "learning-on-button-lock": this.learningOn === true && button !== "learningMode" && this.learningLock === true && this.buttonBeingLearned === title && button !== "none",
+          "learning-off": this.learningOn === false && button !== "none",
+          "display_none": button === "none"
         })}"
           button=${button}
           title=${title}
@@ -274,15 +228,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
         >
         <ha-icon .icon=${icon}></ha-icon>
       </ha-icon-button>
-        `}
         `;
-  }
-
-  private showDigitsDialog() {
-    showDigitsDialog(
-      this,
-      { broadlinkInfo: this.config }
-    )
   }
 
   private _handleAction(ev: ActionHandlerEvent): void {
@@ -408,6 +354,11 @@ export class HuiMoreInfoBroadlink extends LitElement  {
         --mdc-icon-button-size: 50px;
         --mdc-icon-size: 35px;
       }
+      .remoteButton.display_none {
+        border-radius: 0;
+        background-color: var(--card-background-color);
+        color: var(--card-background-color);
+      }
 
       .remoteButton.learning-on-changeMode{
         box-shadow: -1px -1px 5px #0000FF , 1px 1px 0px #0000FF;
@@ -499,6 +450,6 @@ export class HuiMoreInfoBroadlink extends LitElement  {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "remote-card-dialog": HuiMoreInfoBroadlink;
+    "digits-dialog": HuiMoreInfoBroadlink;
   }
 }

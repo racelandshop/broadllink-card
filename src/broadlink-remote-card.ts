@@ -135,7 +135,6 @@ export class RemoteCard extends LitElement {
         }
       }
     }
-    console.log("preset", this.config.preset)
     const states = this.config?.all_devices[index].is_locked
 
     return html`
