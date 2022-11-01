@@ -18,7 +18,7 @@ import {
 import { fetchDevicesMac } from "./helpers"
 import './editor';
 import type { RemoteCardConfig } from './types';
-import { CARD_VERSION, mdiIcon, UNAVAILABLE_STATES } from './const';
+import { CARD_VERSION, mdiIcon } from './const';
 import { localize } from './localize/localize';
 import { RippleHandlers } from '@material/mwc-ripple/ripple-handlers';
 import { Ripple } from '@material/mwc-ripple';
@@ -42,7 +42,7 @@ console.info(
 declare global {
   // for fire event
   interface HASSDomEvents {
-    "add-remote": { broadlinkInfo: RemoteCardConfig , all_devices: any};
+    "add-remote": { broadlinkInfo: RemoteCardConfig , all_devices: any, index: any};
   }
 }
 
@@ -87,9 +87,12 @@ export class RemoteCard extends LitElement {
     return {
       type: "custom:remote-card",
       show_name: true,
+      icon: mdiIcon,
       selected_device_mac: Devices[0].mac,
       all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
+      presets: Devices[0].presets,
       preset: "",
+      entity_id: ""
     };
 
   }
@@ -117,8 +120,6 @@ export class RemoteCard extends LitElement {
   }
 
   protected render(): TemplateResult | void {
-    this.config.icon = mdiIcon
-
     if (this.config.show_warning || !(this.config.selected_device_mac)) {
       return this._showWarning(localize('common.show_warning'));
 

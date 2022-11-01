@@ -18,9 +18,8 @@ import {
   fireEvent,
 } from 'custom-card-helpers';
 
-import { sendCommand, learningMode, removeRemote} from "./webhook"
+import { learningMode } from "./webhook"
 
-import { fetchDevicesMac } from "./helpers"
 
 import './editor';
 
@@ -31,21 +30,6 @@ import { localize } from './localize/localize';
 import { BroadlinkDialogParams } from './show-more-info-dialog';
 import { showDigitsDialog } from './show-digits-dialog';
 // import { HassDialog } from './common/dom/dialogs/make-dialog-manager';
-
-/* eslint no-console: 0 */
-console.info(
-  `%c  REMOTE-CARD \n%c  ${localize('common.version')} ${CARD_VERSION}    `,
-  'color: orange; font-weight: bold; background: black',
-  'color: white; font-weight: bold; background: dimgray',
-);
-
-(window as any).customCards = (window as any).customCards || [];
-(window as any).customCards.push({
-  type: 'remote-card',
-  name: localize('info.card_name'),
-  description: localize('info.description'),
-  preview: true,
-});
 
 @customElement('remote-card-dialog')
 export class HuiMoreInfoBroadlink extends LitElement  {
@@ -95,10 +79,6 @@ export class HuiMoreInfoBroadlink extends LitElement  {
       getLovelace().setEditMode(true);
     }
 
-    this.config = {
-      ...config,
-      preset: String(config.preset) //Typecast the "1" above. For some reason is being converted into a number for some reason.
-    }
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -310,7 +290,8 @@ export class HuiMoreInfoBroadlink extends LitElement  {
       }
       if (this.learningOn === true && this.config.preset) {
         this.learningLock = true;
-        const response = learningMode(this.hass, this.config, command, this.config.preset);
+        const mac  = this.config.selected_device_mac
+        const response = learningMode(this.hass, mac, this.config.preset, this.config.entity_id, command);
         response.then((resp) => {
           if (resp.sucess){
             this.learningLock = false;
@@ -323,7 +304,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
         })
 
       } else if (this.learningOn === false && command !== 'LearningMode') {
-        sendCommand(this.hass, this.config, command, this.config.preset);
+        this.hass.callService("broadlink_custom_card", "send_command", {button_name: "PowerOff", entity_id: this.config.entity_id})
       }
     }
   }

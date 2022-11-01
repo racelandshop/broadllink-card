@@ -48,11 +48,30 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     if (this._config ) this._config = { ...this._config, all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets , is_locked: device.is_locked})) }
     fireEvent(this, 'config-changed', { config: this._config });
 
-    window.addEventListener("add-remote", (ev : any) => {
+    window.addEventListener("add-remote", (ev: any) => {
+      console.log("fired add-remote")
+      console.log("This is the detailts", ev.detail)
+
+
+      // const config = {
+      //   ...this.config,
+      //   all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
+      //   preset: config_name,
+      //   presets: Devices[index].presets
+      // }
+
       this.preset = ev.detail.broadlinkInfo.name;
-      if (this.preset ) this._changePreset(this.preset);
-      if (this._config ) this._config = { ...this._config, all_devices: ev.detail.all_devices }
+      if (this._config) this._config = {
+        ...this._config,
+        all_devices: ev.detail.all_devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
+        preset: this.preset,
+        presets: ev.detail.all_devices[ev.detail.index].presets
+      }
+
       fireEvent(this, 'config-changed', { config: this._config });
+
+      if (this.preset ) this._changePreset(this.preset);
+
     });
     this.path = "M12,0C8.96,0 6.21,1.23 4.22,3.22L5.63,4.63C7.26,3 9.5,2 12,2C14.5,2 16.74,3 18.36,4.64L19.77,3.23C17.79,1.23 15.04,0 12,0M7.05,6.05L8.46,7.46C9.37,6.56 10.62,6 12,6C13.38,6 14.63,6.56 15.54,7.46L16.95,6.05C15.68,4.78 13.93,4 12,4C10.07,4 8.32,4.78 7.05,6.05M12,15A2,2 0 0,1 10,13A2,2 0 0,1 12,11A2,2 0 0,1 14,13A2,2 0 0,1 12,15M15,9H9A1,1 0 0,0 8,10V22A1,1 0 0,0 9,23H15A1,1 0 0,0 16,22V10A1,1 0 0,0 15,9Z";
   }
@@ -71,8 +90,8 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     return this._config?.name || '';
   }
 
-  get _entity(): string {
-    return this._config?.entity || '';
+  get _entity_id(): string {
+    return this._config?.entity_id || '';
   }
 
   get _preset(): string{
@@ -102,11 +121,13 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
 
   protected render(): TemplateResult | void {
     if (!this.hass || !this._helpers) {
-      return html`<mwc-button class="discover ${classMap({"spin": this._discovering === true})}"
-      @action=${this._handleAction}>
-      ${localize('editor.discover')}
-    </mwc-button>`;
+      return html`
+      <mwc-button class="discover ${classMap({ "spin": this._discovering === true })}"
+        @action=${this._handleAction}>
+        ${localize('editor.discover')}
+      </mwc-button>`;
     }
+
 
     let index = 0;
     if (this._config?.all_devices) {
@@ -118,7 +139,6 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     }
     const presets = this._config?.all_devices[index]?.presets;
     if (presets) {
-
       const selectec_device_preset_list: any = [];
       for (const [preset_name, preset_value] of Object.entries(presets)) {
         selectec_device_preset_list?.push(preset_name);
@@ -129,9 +149,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     }
     const remoteTypeConfigSchemaData = {
       "selected_device_mac": this._config?.selected_device_mac,
-      "presets": presets
     }
-
     return html`
       <div class="card-config">
         <mwc-button class="discover ${classMap({"spin": this._discovering === true})}"
@@ -259,11 +277,15 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     )
   }
 
-  private _changePreset(key:string): void {
+  private _changePreset(key: string): void {
     if (!this._config || !this.hass) {
       return;
     }
-    this._config = { ...this._config, preset: key }
+    if (!this._config.presets) {
+      return;
+    }
+    const presetEntityID = this._config.presets[key].entity_id
+    this._config = { ...this._config, preset: key, entity_id: presetEntityID}
     this.preset = key
     fireEvent(this, 'config-changed', { config: this._config });
   }

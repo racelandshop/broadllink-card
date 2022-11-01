@@ -62,7 +62,6 @@ import { fetchDevicesMac } from './helpers';
   @customElement('add-remote-dialog')
   export class HuiMoreInfoBroadlink2 extends LitElement {
 
-
     @property({ attribute: false }) public hass!: HomeAssistant;
 
     @state() private _params?: BroadlinkDialogParams;
@@ -224,8 +223,8 @@ import { fetchDevicesMac } from './helpers';
       }
     }
     private async _save() {
-
-    this.name_error_exists = false;
+      const config_name = this.config.name.trim()
+      this.name_error_exists = false;
       this.name_error_none = false;
 
       let index = 0;
@@ -243,22 +242,20 @@ import { fetchDevicesMac } from './helpers';
         selectec_device_preset_list.push(preset_name)
       }
 
-      if (!selectec_device_preset_list.includes(this.config.name) && this.config.name) {
-        const response = addRemote(this.hass, this.config, this.config.name, this.config.remote_type);
+      if (!selectec_device_preset_list.includes(config_name) && config_name) {
+        const response = addRemote(this.hass, this.config, config_name, this.config.remote_type);
         response.then((resp) => {
           if (resp.sucess) {
-            fireEvent(this, "add-remote", { broadlinkInfo: this.config, all_devices: resp.devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets , is_locked: device.is_locked})) });
+            fireEvent(this, "add-remote", {
+              broadlinkInfo: this.config,
+              all_devices: resp.devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
+              index: index,
+            });
           }
         })
-        const Devices = await fetchDevicesMac(this.hass).then((resp) => { return resp })
-
-        if (this.config) {
-          this.config = { ...this.config, all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })), preset: this.config.name }
-        }
-        fireEvent(this, 'config-changed', { config: this.config });
         this.closeDialog();
       }
-      if (!this.config.name){
+      if (config_name){
         this.name_error_none = true
       } else {
         this.name_error_exists = true
