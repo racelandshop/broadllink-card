@@ -49,17 +49,6 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     fireEvent(this, 'config-changed', { config: this._config });
 
     window.addEventListener("add-remote", (ev: any) => {
-      console.log("fired add-remote")
-      console.log("This is the detailts", ev.detail)
-
-
-      // const config = {
-      //   ...this.config,
-      //   all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
-      //   preset: config_name,
-      //   presets: Devices[index].presets
-      // }
-
       this.preset = ev.detail.broadlinkInfo.name;
       if (this._config) this._config = {
         ...this._config,
@@ -281,10 +270,22 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     if (!this._config || !this.hass) {
       return;
     }
-    if (!this._config.presets) {
+
+    let index = 0;
+    if (this._config?.all_devices) {
+      for (let i = 0; i < this._config?.all_devices?.length; i++) {
+        if (this._config?.all_devices[i].mac === this._config?.selected_device_mac) {
+          index = i
+        }
+      }
+    }
+
+    const config_preset = this._config.all_devices[index].presets[key]
+
+    if (!config_preset) {
       return;
     }
-    const presetEntityID = this._config.presets[key].entity_id
+    const presetEntityID = config_preset.entity_id
     this._config = { ...this._config, preset: key, entity_id: presetEntityID}
     this.preset = key
     fireEvent(this, 'config-changed', { config: this._config });

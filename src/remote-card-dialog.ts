@@ -25,7 +25,6 @@ import './editor';
 
 import type { RemoteCardConfig } from './types';
 import { actionHandler } from './action-handler-directive';
-import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { BroadlinkDialogParams } from './show-more-info-dialog';
 import { showDigitsDialog } from './show-digits-dialog';

@@ -84,13 +84,14 @@ export class RemoteCard extends LitElement {
         all_devices: []
       };
     }
+
+
     return {
       type: "custom:remote-card",
       show_name: true,
       icon: mdiIcon,
       selected_device_mac: Devices[0].mac,
       all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
-      presets: Devices[0].presets,
       preset: "",
       entity_id: ""
     };
