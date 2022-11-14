@@ -303,7 +303,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
         })
 
       } else if (this.learningOn === false && command !== 'LearningMode') {
-        this.hass.callService("broadlink_custom_card", "send_command", {button_name: "PowerOff", entity_id: this.config.entity_id})
+        this.hass.callService("broadlink_custom_card", "send_command", {button_name: command, entity_id: this.config.entity_id})
       }
     }
   }
