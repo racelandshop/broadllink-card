@@ -105,7 +105,9 @@ For testing purposes I'm using python-playwright
 
 1 - Create a new dashboard named Test. This is the dashboard that will be acessed. Make sure you have taken control of this dashboard (by clicking in the edit button) and that this dashboard is empty. Furthermore, make sure the broadlink card is avaiable for the frontend
 
-2 - Run the command ```pytest tests --slowmo 1000```. This will execute all the test in slow motion as well as possible assertions
+2 - Make sure to replace the HOST varible in ```tests/helpers.py``` by localhost or the IP of the host (depending if you run the test in the same machine or in a different machine running Homeland). By default this is set to local host
+
+3 - Run the command ```pytest tests```. This will execute the tests in a new browser windown
 
 
 #### Introduce new tests.
