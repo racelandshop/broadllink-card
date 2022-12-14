@@ -121,7 +121,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     let index = 0;
     if (this._config?.all_devices) {
       for (let i = 0; i < this._config?.all_devices?.length; i++) {
-        if (this._config?.all_devices[i].mac === this._config?.selected_device_mac) {
+        if (this._config?.all_devices[i].mac === this._config?.entity) {
           index = i
         }
       }
@@ -137,7 +137,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       this.selectec_device_preset_list = selectec_device_preset_list;
     }
     const remoteTypeConfigSchemaData = {
-      "selected_device_mac": this._config?.selected_device_mac,
+      "entity": this._config?.entity,
     }
     return html`
       <div class="card-config">
@@ -173,7 +173,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
           <div id="current">${localize('editor.current_remote')}</div>
           <div class= "div-options">
             <div class="presets">
-            ${this._config?.selected_device_mac !== undefined ? this.selectec_device_preset_list?.map((preset) =>
+            ${this._config?.entity !== undefined ? this.selectec_device_preset_list?.map((preset) =>
               html `
               <ha-card class = "preset-card ${classMap({
                   "on": this.preset === preset,
@@ -224,10 +224,10 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
       })
       this._discovering = false
       if (this._config) {
-        const active_selected_mac = defineDefault(this._config.selected_device_mac)
+        const active_selected_mac = defineDefault(this._config.entity)
         this._config = { ...this._config, all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })) }
         if (!(Devices.map(device => device.mac).includes(active_selected_mac))) {
-          delete this._config.selected_device_mac;
+          delete this._config.entity;
           delete this._config.preset;
           delete this._config.remote_type;
           fireEvent(this, "config-changed", { config: this._config });
@@ -245,7 +245,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     let index = 0;
     if (this._config?.all_devices) {
       for (let i = 0; i < this._config?.all_devices?.length; i++) {
-        if (this._config?.all_devices[i].mac === this._config?.selected_device_mac) {
+        if (this._config?.all_devices[i].mac === this._config?.entity) {
           index = i
         }
       }
@@ -274,7 +274,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     let index = 0;
     if (this._config?.all_devices) {
       for (let i = 0; i < this._config?.all_devices?.length; i++) {
-        if (this._config?.all_devices[i].mac === this._config?.selected_device_mac) {
+        if (this._config?.all_devices[i].mac === this._config?.entity) {
           index = i
         }
       }
@@ -297,7 +297,7 @@ export class RemoteCardEditor extends LitElement implements LovelaceCardEditor {
     }
     let newData = ev.detail.value;
     if (newData) {
-      if (newData.selected_device_mac !== undefined && this._config.preset === undefined) {
+      if (newData.entity !== undefined && this._config.preset === undefined) {
         newData = {
           ...newData,
           preset: ''

@@ -103,7 +103,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
   }
 
   protected render(): TemplateResult | void {
-    if (this.config.show_warning || !(this.config.selected_device_mac)) {
+    if (this.config.show_warning || !(this.config.entity)) {
       return this._showWarning(localize('common.show_warning'));
 
     }
@@ -118,7 +118,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
     let index = 0;
     if (this.config?.all_devices) {
       for (let i = 0; i < this.config?.all_devices?.length; i++) {
-        if (this.config?.all_devices[i].mac === this.config?.selected_device_mac) {
+        if (this.config?.all_devices[i].mac === this.config?.entity) {
           index = i
         }
       }
@@ -232,7 +232,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
     let index = 0;
     if (this.config?.all_devices) {
       for (let i = 0; i < this.config?.all_devices?.length; i++) {
-        if (this.config?.all_devices[i].mac === this.config?.selected_device_mac) {
+        if (this.config?.all_devices[i].mac === this.config?.entity) {
           index = i
         }
       }
@@ -253,7 +253,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
       }
       if (this.learningOn === true && this.config.preset) {
         this.learningLock = true;
-        const mac  = this.config.selected_device_mac
+        const mac  = this.config.entity
         const response = learningMode(this.hass, mac, this.config.preset, this.config.entity_id, command);
         response.then((resp) => {
           if (resp.sucess){

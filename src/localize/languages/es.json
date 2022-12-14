@@ -11,7 +11,7 @@
       "description": "Una tarjeta remota para controles remotos universales de enlace amplio"
     },
     "editor": {
-      "add_remote_error": "Ya existe un control remoto con ese nombre",
+      "add_remote_error_exists": "Ya existe un control remoto con ese nombre",
       "add_remote_error_none": "Por favor, dé un nombre al control remoto.",
       "discover": "Actualizar Broadlinks",
       "remote": "Control Remoto (MAC)",

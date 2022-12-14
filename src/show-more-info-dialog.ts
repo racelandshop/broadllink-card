@@ -2,7 +2,8 @@ import { fireEvent } from "custom-card-helpers";
 
 
 export interface BroadlinkDialogParams {
-  broadlinkInfo; //CameraInfo is a list of camera info (add this later with the corresponding camera info interface)
+  broadlinkInfo;
+  obj;
 }
 
 export const importBroadlinkDialog = () => import("./remote-card-dialog");

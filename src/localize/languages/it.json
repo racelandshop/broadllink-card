@@ -11,7 +11,7 @@
       "description": "Una scheda remota per telecomandi universali Broadlink"
     },
     "editor": {
-      "add_remote_error": "Esiste già un telecomando con quel nome",
+      "add_remote_error_exists": "Esiste già un telecomando con quel nome",
       "add_remote_error_none": "Si prega di dare un nome al telecomando",
       "discover": "Aggiornare Broadlink",
       "remote": "Telecomando (MAC)",

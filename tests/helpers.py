@@ -4,7 +4,7 @@ from playwright.async_api import expect
 
 import json
 
-HOST="http://192.168.1.173:8123/" # Can be replace by localhost if HA is running on the current machine or by some other prefix
+HOST="localhost:8123/" # Can be replace by localhost if HA is running on the current machine or by some other prefix
 
 AUTH_FILE = "tests/folder/auth_data.json"
 

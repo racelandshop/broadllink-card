@@ -3,7 +3,7 @@ import { localize } from './localize/localize';
 import { formatDeviceDropdownOption } from './helpers'
 
 export const remoteConfigSchema = (editorConfig) => {
-  const remoteTypeConfig = editorConfig.selected_device_mac !== undefined ?
+  const remoteTypeConfig = editorConfig.entity !== undefined ?
     {
       name: "remote_type",
       label: localize('editor.remoteType'),
@@ -43,7 +43,7 @@ export const remoteEditorSchema = (editorConfig) => {
   );
   return [
     {
-      name: "selected_device_mac",
+      name: "entity",
       label: localize('editor.remote'),
       selector: {
         select: {
