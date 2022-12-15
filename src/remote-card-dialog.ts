@@ -107,6 +107,22 @@ export class HuiMoreInfoBroadlink extends LitElement  {
 
   @property({ attribute: false }) _show_keypad: boolean | undefined;
 
+  @state() private colorButtons: boolean | undefined;
+
+  @state() private borderWidth: string | undefined;
+
+  @state() private remoteWidth: string | undefined;
+
+  @state() private backgroundColor: string | undefined;
+
+  @state() private borderColor: string | undefined;
+
+  @state() private buttonColor: string | undefined;
+
+  @state() private textColor: string | undefined;
+
+  @state() private scale: number | undefined;
+
   @state() private _currTabIndex = 0;
 
   public async showDialog(params: BroadlinkDialogParams): Promise<void> {
@@ -455,17 +471,19 @@ public static get iconMapping() {
     }
     if (this.config.preset) this.remoteType = this.config.all_devices[index].presets[this.config.preset].type
 
-    const colorButtons = this.config.color_buttons === "enable";
+    this.colorButtons = this.config.color_buttons === "enable";
 
-    const borderWidth = this.config.dimensions && this.config.dimensions.border_width ? this.config.dimensions.border_width : "1px";
-    const scale = this.config.dimensions && this.config.dimensions.scale ? this.config.dimensions.scale : 1;
-    const remoteWidth = Math.round(scale * 260) + "px";
+    this.borderWidth = this.config.dimensions && this.config.dimensions.border_width ? this.config.dimensions.border_width : "1px";
+    this.scale = this.config.dimensions && this.config.dimensions.scale ? this.config.dimensions.scale : 1;
+      if (this.scale) {
+          this.remoteWidth = Math.round(this.scale * 260) + "px";
+      }
 
-    const backgroundColor = this.config.colors && this.config.colors.background ? this.config.colors.background : "#111111";
-    const borderColor = this.config.colors && this.config.colors.border ? this.config.colors.border: "#111111";
-    const buttonColor = this.config.colors && this.config.colors.buttons ? this.config.colors.buttons : "var(--raquel-dark-2)";
-    const textColor = this.config.colors && this.config.colors.texts ? this.config.colors.texts : "white";
-    console.log("button being learned", this.buttonBeingLearned)
+    this.backgroundColor = this.config.colors && this.config.colors.background ? this.config.colors.background : "#111111";
+    this.borderColor = this.config.colors && this.config.colors.border ? this.config.colors.border: "#111111";
+    this.buttonColor = this.config.colors && this.config.colors.buttons ? this.config.colors.buttons : "var(--raquel-dark-2)";
+    this.textColor = this.config.colors && this.config.colors.texts ? this.config.colors.texts : "white";
+
     return html`
     <ha-dialog
           open
@@ -498,7 +516,123 @@ public static get iconMapping() {
         </div>
         <div class="content">
           <div class="contentFather">
-          <div class="row">
+          ${this.remoteType === "tv" ? this._renderTvRemote() : this.remoteType === 'ac' ? this._renderAcRemote() : html ``}
+          </div>
+        </div>
+    </ha-dialog>
+    `;
+  }
+
+
+  private _renderAcRemote(): TemplateResult | void {
+      return html`
+      <div class="row">
+              <button class="learning-button" @click=${() => this._handleAction("LearningMode")}>ENTER LEARNING MODE</button>
+        </div>
+    <div id="sep"></div>
+    <div class=${classMap({
+              "learning-on": this.learningOn === true,
+              "page": true
+                            })}
+    style="--remote-button-color: ${this.buttonColor}; --remote-text-color: ${this.textColor}; --remote-color: ${this.backgroundColor}; --remotewidth: ${this.remoteWidth};  --main-border-color: ${this.borderColor}; --main-border-width: ${this.borderWidth}">
+   <div class="grid-container-ac">
+    <div class="first-rows-ac">
+        <button id="power-off" class="btn_source ripple ${classMap({
+    "learning-on-button": this.buttonBeingLearned === "power_off"
+        })}" @click=${() => this._handleAction("power_off")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:power-off"/></button>
+        <div class="text">Power Off</div>
+        <button class="btn_source ripple ${classMap({
+    "learning-on-button": this.buttonBeingLearned === "modes"
+        })}" @click=${() => this._handleAction("modes")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:gesture-tap-button"/></button>
+        <div class="text">Modes</div>
+        <button class="btn_source ripple ${classMap({
+    "learning-on-button": this.buttonBeingLearned === "swing"
+        })}" @click=${() => this._handleAction("swing")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:sync"/></button>
+        <div class="text">Swing</div>
+    </div>
+    <div class="first-rows-ac">
+        <button id="power-on" class="btn_source ripple ${classMap({
+    "learning-on-button": this.buttonBeingLearned === "power_on"
+        })}" @click=${() => this._handleAction("power_on")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:power"/></button>
+        <div class="text">Power On</div>
+        <button class="btn_source ripple ${classMap({
+    "learning-on-button": this.buttonBeingLearned === "fan"
+        })}" @click=${() => this._handleAction("fan")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:fan"/></button>
+        <div class="text">Fan</div>
+         <button class="btn_source ripple ${classMap({
+    "learning-on-button": this.buttonBeingLearned === "sleep"
+         })}" @click=${() => this._handleAction("sleep")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:power-sleep"/></button>
+        <div class="text">Sleep</div>
+    </div>
+        <div id="temp-btn">
+        <button class="btn_temp ripple ${classMap({
+    "learning-on-button": this.buttonBeingLearned === "temp_plus"
+        })}" @click=${() => this._handleAction("temp_plus")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:thermometer-plus"/></button>
+        <div class="text"> ºC </div>
+        <button class="btn_temp ripple ${classMap({
+    "learning-on-button": this.buttonBeingLearned === "temp_minus"
+        })}" @click=${() => this._handleAction("temp_minus")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:thermometer-minus"/></button>
+        </div>
+    </div>
+    <div id="sep"></div>
+    <div class="grid-container-ac">
+        <div class="second-row-ac">
+            <button class="btn_source ripple ${classMap({
+            "learning-on-button": this.buttonBeingLearned === "speed_1"
+                 })}" @click=${() => this._handleAction("speed_1")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:fan-speed-1"/></button>
+                <div class="text">Speed 1</div>
+        </div>
+        <div class="second-row-ac">
+            <button class="btn_source ripple ${classMap({
+        "learning-on-button": this.buttonBeingLearned === "speed_2"
+             })}" @click=${() => this._handleAction("speed_2")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:fan-speed-2"/></button>
+            <div class="text">Speed 2</div>
+        </div>
+        <div class="second-row-ac">
+            <button class="btn_source ripple ${classMap({
+        "learning-on-button": this.buttonBeingLearned === "speed_3"
+             })}" @click=${() => this._handleAction("speed_3")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:fan-speed-3"/></button>
+            <div class="text">Speed 3</div>
+        </div>
+    </div>
+    <div class="grid-container-ac">
+        <div class="second-row-ac">
+            <button class="btn_source ripple ${classMap({
+            "learning-on-button": this.buttonBeingLearned === "timer_on"
+                 })}" @click=${() => this._handleAction("timer_on")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:timer"/></button>
+                <div class="text">Timer On</div>
+        </div>
+        <div class="second-row-ac">
+            <button class="btn_source ripple ${classMap({
+        "learning-on-button": this.buttonBeingLearned === "timer_off"
+             })}" @click=${() => this._handleAction("timer_off")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:timer-off"/></button>
+            <div class="text">Timer Off</div>
+        </div>
+        <div class="second-row-ac">
+            <button class="btn_source ripple ${classMap({
+        "learning-on-button": this.buttonBeingLearned === "power_save"
+             })}" @click=${() => this._handleAction("power_save")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:power-plug"/></button>
+            <div class="text">Power Save</div>
+        </div>
+    </div>
+    <div class="grid-container-ac">
+        <div class="second-row-ac">
+        </div>
+        <div class="second-row-ac">
+            <button class="btn_source ripple ${classMap({
+        "learning-on-button": this.buttonBeingLearned === "silent_mode"
+             })}" @click=${() => this._handleAction("silent_mode")}><ha-icon style="heigth: 70%; width: 70%;" icon="mdi:butterfly"/></button>
+            <div class="text">Silent Mode</div>
+        </div>
+        <div class="second-row-ac">
+        </div>
+    </div>
+    </div>
+    `
+  }
+    private _renderTvRemote(): TemplateResult | void {
+        return html`
+            <div class="row">
               <button class="learning-button" @click=${() => this._handleAction("LearningMode")}>ENTER LEARNING MODE</button>
             </div>
             <div class="sep"></div>
@@ -506,8 +640,8 @@ public static get iconMapping() {
               "learning-on": this.learningOn === true,
               "card": true
                             })}>
-                <div class="page" style="--remote-button-color: ${buttonColor}; --remote-text-color: ${textColor}; --remote-color: ${backgroundColor}; --remotewidth: ${remoteWidth};  --main-border-color: ${borderColor}; --main-border-width: ${borderWidth}">
-                    <div class="grid-container-power"  style="--remotewidth: ${remoteWidth}">
+                <div class="page" style="--remote-button-color: ${this.buttonColor}; --remote-text-color: ${this.textColor}; --remote-color: ${this.backgroundColor}; --remotewidth: ${this.remoteWidth};  --main-border-color: ${this.borderColor}; --main-border-width: ${this.borderWidth}">
+                    <div class="grid-container-power"  style="--remotewidth: ${this.remoteWidth}">
                         <button class="btn-flat flat-high ripple ${classMap({
                         "learning-on-button": this.buttonBeingLearned === "ChannelList"
                             })}" @click=${() => this._handleAction("ChannelList")}><ha-icon icon="mdi:format-list-numbered"/></button>
@@ -646,7 +780,7 @@ public static get iconMapping() {
                             })}" style="background-color: transparent;" @click=${() => this._handleAction("LEFT")}><ha-icon icon="mdi:chevron-left"/></button>
                             <button class="btn bnt_ok ripple item_2_c ${classMap({
                         "learning-on-button": this.buttonBeingLearned === "ENTER"
-                            })}" style="border: solid 2px ${backgroundColor}"  @click=${() => this._handleAction("ENTER")}>OK</button>
+                            })}" style="border: solid 2px ${this.backgroundColor}"  @click=${() => this._handleAction("ENTER")}>OK</button>
                             <button class="btn ripple item_right ${classMap({
                         "learning-on-button": this.buttonBeingLearned === "RIGHT"
                             })}" style="background-color: transparent;" @click=${() => this._handleAction("RIGHT")}><ha-icon icon="mdi:chevron-right"/></button>
@@ -714,7 +848,7 @@ public static get iconMapping() {
                             })}" style="border-radius: 0px; cursor: default; margin: 0px auto 0px auto; height: 100%;" @click=${() => this._handleAction("VOLUMEOFF")}><ha-icon icon="mdi:volume-off"/></button>
                             <button class="btn ripple ${classMap({
                         "learning-on-button": this.buttonBeingLearned === "MUTE"
-                            })}" style="color: ${textColor}; height: 100%;" @click=${() => this._handleAction("MUTE")}><span class=""><ha-icon icon="mdi:volume-mute"></span></button>
+                            })}" style="color: ${this.textColor}; height: 100%;" @click=${() => this._handleAction("MUTE")}><span class=""><ha-icon icon="mdi:volume-mute"></span></button>
                             <button class="btn ${classMap({
                         "learning-on-button": this.buttonBeingLearned === "PARKING"
                             })}" style="border-radius: 0px; cursor: default; margin: 0px auto 0px auto; height: 100%;" @click=${() => this._handleAction("PARKING")}><ha-icon icon="mdi:parking"/></button>
@@ -758,10 +892,7 @@ public static get iconMapping() {
                     </div>
                 </div>
                 </div>
-                </div>
-            </div>
-          </ha-dialog>
-    `;
+      `
   }
 
   private _handleAction(command: string): void {
@@ -851,22 +982,47 @@ public static get iconMapping() {
             flex-shrink: 0;
         }
         .learning-on {
-          box-shadow: -1px -1px 5px #FFA500 , 1px 1px 5px #FFA500;
+          box-shadow: -3px -3px 12px #1F8BFF , 3px 3px 12px #1F8BFF;
           border-radius: 30px;
         }
         .learning-on-button {
-          box-shadow: -1px -1px 5px #ffa500, 1px 1px 5px #ffa500;
+          box-shadow: -3px -3px 12px #1F8BFF, 3px 3px 12px #1F8BFF;
         }
         .learning-button {
           height: 30px;
           border-radius: 10px;
           border-width: 0px;
+          background-color: var(--accent-color);
+          color: white;
+        }
+        .text {
+            color: var(--remote-text-color);
+        }
+        #sep {
+            height: 20px;
+        }
+        .first-rows-ac {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .second-row-ac {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #power-off {
+            color: red;
+        }
+        #power-on {
+            /* background-color: var(--accent-color);
+            color: white; */
         }
         .content {
           height: 630px;
         }
         .contentFather {
-          max-height: 500px;
+          max-height: 600px;
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
@@ -889,7 +1045,12 @@ public static get iconMapping() {
             display: flex;
             justify-content: center;
         }
-
+        #temp-btn {
+            display: flex;
+            flex-direction: column;
+            height: 224px;
+            align-items: center;
+        }
         button:focus {
           outline:0;
         }
@@ -1066,6 +1227,15 @@ public static get iconMapping() {
         .grid-container-source {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: auto;
+            background-color: transparent;
+            width: calc(var(--remotewidth) / 1.03);
+            overflow: hidden;
+            margin: auto;
+        }
+        .grid-container-ac {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             grid-template-rows: auto;
             background-color: transparent;
             width: calc(var(--remotewidth) / 1.03);
@@ -1311,6 +1481,17 @@ public static get iconMapping() {
             color: var(--remote-text-color);
             width: calc(var(--remotewidth) / 5.9);
             height: calc(var(--remotewidth) / 8.125);
+            border-width: 0px;
+            border-radius: calc(var(--remotewidth) / 10);
+            margin: calc(var(--remotewidth) / 18.57) auto calc(var(--remotewidth) / 20) auto;
+            place-items: center;
+            cursor: pointer;
+        }
+        .btn_temp {
+            background-color: var(--remote-button-color);
+            color: var(--remote-text-color);
+            width: calc(var(--remotewidth) / 5.9);
+            height: calc(var(--remotewidth) / 3.5);
             border-width: 0px;
             border-radius: calc(var(--remotewidth) / 10);
             margin: calc(var(--remotewidth) / 18.57) auto calc(var(--remotewidth) / 20) auto;
