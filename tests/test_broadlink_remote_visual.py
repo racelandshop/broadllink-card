@@ -12,7 +12,7 @@ from .helpers import (async_goto_test_dashboard,
                       async_create_preset)
 
 async def run(playwright: Playwright) -> None:
-    browser = await playwright.webkit.launch(headless=False, slow_mo=200)
+    browser = await playwright.webkit.launch(headless=False, slow_mo=500)
     context = await browser.new_context(viewport={"width":1900,"height":1200})
     page = await context.new_page()
 

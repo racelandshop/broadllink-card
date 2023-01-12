@@ -192,7 +192,6 @@ export class RemoteCard extends LitElement {
   });
 
   private _showBroadlinkDialog() {
-    console.log("OBJJJ", this._states)
     showBroadlinkDialog(
       this,
       { broadlinkInfo: this.config, obj: this._states }

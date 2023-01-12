@@ -7,7 +7,7 @@
     "save": "Save"
   },
   "info":{
-    "card_name": "Broadlink Remote Card",
+    "card_name": "Broadlink",
     "description": "A remote card for broadlink universal remotes"
   },
   "editor": {
