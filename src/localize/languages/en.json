@@ -7,11 +7,11 @@
     "save": "Save"
   },
   "info":{
-    "card_name": "Broadlink Remote Card",
+    "card_name": "Broadlink",
     "description": "A remote card for broadlink universal remotes"
   },
   "editor": {
-    "add_remote_error": "A remote with that name already exists",
+    "add_remote_error_exists": "A remote with that name already exists",
     "add_remote_error_none": "Please give a name to the remote",
     "discover": "Refresh broadlinks",
     "remote": "Remote (MAC)",

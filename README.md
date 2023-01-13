@@ -81,9 +81,42 @@ This card has 2 learning modes: a "quick" and a "long":
 - If you use a short press on the learning Mode button after the command is learned it goes out of the learning mode
 - If you use a long tap, the remote will stay on learning mode until you turn it off
 
-
 !["learning_mode_on"](images/turning_on_learning_mode.gif "learning_mode_on")
 
 ### Presets
 
-After binding a IF command to the remote, every new instance of the card will have the same command. To allow the user to quickly switch up remote and remote types, presets were introduced. Every broadlink device (e.g a specific RM4PRO) has 5 presets and the user can switch between them in the editor.
+The learned commands are preset specific. You can create as many presets as you want for the same remote (broadlink entity). Each preset get registered as a new entity. You can use these entities for automations.
+
+
+## For Developers
+
+### Setting up the enviroment
+
+After cloning this git repository, open the dev container.
+Run ```yarn start``` inside the container.
+Add the card url in the resources tab (http://localhost:5006/broadlink-remote-card.js)
+
+
+### Test (In Developement, subject to change)
+
+#### Run tests
+
+For testing purposes I'm using python-playwright
+
+1 - Create a new dashboard named Test. This is the dashboard that will be acessed. Make sure you have taken control of this dashboard (by clicking in the edit button) and that this dashboard is empty. Furthermore, make sure the broadlink card is avaiable for the frontend
+
+2 - Make sure to replace the HOST varible in ```tests/helpers.py``` by localhost or the IP of the host (depending if you run the test in the same machine or in a different machine running Homeland). By default this is set to local host
+
+3 - Run the command ```pytest tests```. This will execute the tests in a new browser windown
+
+
+#### Introduce new tests.
+For writing test code, we use the codegen feature from playwright
+
+Run the following command:
+
+```
+playwright codegen  --viewport-size=1200,900 --target python-async localhost:8123/lovelace-test/0
+```
+
+When writing test try to use only the "test" dashboard and make sure the test remove all the changes to dashboard. This ensure other test can run

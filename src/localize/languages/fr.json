@@ -7,11 +7,11 @@
       "save": "Sauver"
     },
     "info":{
-      "card_name": "Carte à distance Broadlink",
+      "card_name": "Broadlink",
       "description": "Une carte à distance pour les télécommandes universelles broadlink"
     },
     "editor": {
-      "add_remote_error": "Une télécommande portant ce nom existe déjà",
+      "add_remote_error_exists": "Une télécommande portant ce nom existe déjà",
       "add_remote_error_none": "Veuillez donner un nom à la télécommande",
       "discover": "Actualiser Broadlinks",
       "remote": "Télécommande (MAC)",

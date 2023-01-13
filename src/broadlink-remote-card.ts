@@ -18,11 +18,12 @@ import {
 import { fetchDevicesMac } from "./helpers"
 import './editor';
 import type { RemoteCardConfig } from './types';
-import { CARD_VERSION, mdiIcon, UNAVAILABLE_STATES } from './const';
+import { CARD_VERSION, mdiIcon } from './const';
 import { localize } from './localize/localize';
 import { RippleHandlers } from '@material/mwc-ripple/ripple-handlers';
 import { Ripple } from '@material/mwc-ripple';
 import { showBroadlinkDialog } from './show-more-info-dialog';
+import { HassEntity } from 'home-assistant-js-websocket/dist/types';
 
 /* eslint no-console: 0 */
 console.info(
@@ -42,7 +43,7 @@ console.info(
 declare global {
   // for fire event
   interface HASSDomEvents {
-    "add-remote": { broadlinkInfo: RemoteCardConfig , all_devices: any};
+    "add-remote": { broadlinkInfo: RemoteCardConfig , all_devices: any, index: any};
   }
 }
 
@@ -53,6 +54,8 @@ export class RemoteCard extends LitElement {
   }
 
   @property({ attribute: false }) public hass!: HomeAssistant;
+
+  @property({ attribute: false }) public stateObj!: HassEntity;
 
   @property({ attribute: false }) learningOn = false;
 
@@ -65,6 +68,8 @@ export class RemoteCard extends LitElement {
   @property({ attribute: false }) public config!: RemoteCardConfig;
 
   @state() private _shouldRenderRipple = false;
+
+  @property({ attribute: false }) public _states!: boolean;
 
   @queryAsync("mwc-ripple") private _ripple!: Promise<Ripple | null>;
 
@@ -84,12 +89,16 @@ export class RemoteCard extends LitElement {
         all_devices: []
       };
     }
+
+
     return {
       type: "custom:remote-card",
       show_name: true,
-      selected_device_mac: Devices[0].mac,
+      icon: mdiIcon,
+      entity: Devices[0].mac,
       all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
       preset: "",
+      entity_id: ""
     };
 
   }
@@ -117,9 +126,7 @@ export class RemoteCard extends LitElement {
   }
 
   protected render(): TemplateResult | void {
-    this.config.icon = mdiIcon
-
-    if (this.config.show_warning || !(this.config.selected_device_mac)) {
+    if (this.config.show_warning || !(this.config.entity)) {
       return this._showWarning(localize('common.show_warning'));
 
     }
@@ -130,12 +137,12 @@ export class RemoteCard extends LitElement {
     let index = 0;
     if (this.config?.all_devices) {
       for (let i = 0; i < this.config?.all_devices?.length; i++) {
-        if (this.config?.all_devices[i].mac === this.config?.selected_device_mac) {
+        if (this.config?.all_devices[i].mac === this.config?.entity) {
           index = i
         }
       }
     }
-    const states = this.config?.all_devices[index].is_locked
+    this._states = this.config?.all_devices[index].is_locked
 
     return html`
      <ha-card
@@ -143,7 +150,7 @@ export class RemoteCard extends LitElement {
         "big-card": this.layout === "big",
         "small-card": this.layout === "small",
         "medium-card": this.layout === "medium",
-        "unavailable": states === true
+        "unavailable": this._states === true
               })}
         @focus=${this.handleRippleFocus}
         @blur=${this.handleRippleBlur}
@@ -171,7 +178,7 @@ export class RemoteCard extends LitElement {
             >`
           : ""}
         ${this._shouldRenderRipple ? html`<mwc-ripple></mwc-ripple>` : ""}
-        ${states
+        ${this._states
           ? html` <unavailable-icon></unavailable-icon>`
           : html``}
       </ha-card>
@@ -187,7 +194,7 @@ export class RemoteCard extends LitElement {
   private _showBroadlinkDialog() {
     showBroadlinkDialog(
       this,
-      { broadlinkInfo: this.config }
+      { broadlinkInfo: this.config, obj: this._states }
     )
   }
 

@@ -62,7 +62,6 @@ import { fetchDevicesMac } from './helpers';
   @customElement('add-remote-dialog')
   export class HuiMoreInfoBroadlink2 extends LitElement {
 
-
     @property({ attribute: false }) public hass!: HomeAssistant;
 
     @state() private _params?: BroadlinkDialogParams;
@@ -132,8 +131,11 @@ import { fetchDevicesMac } from './helpers';
       const remoteTypeConfigSchemaData = {
         "name": this.config?.name,
         "remote_type": this.config?.remote_type || "tv",
-        "selected_device_mac": this.config.selected_device_mac
+        "entity": this.config.entity
       }
+      const style = document.createElement( 'style' )
+      style.innerHTML = '.issue-type { margin-bottom: 15px; }'
+      document.querySelector('ha-alert')?.shadowRoot?.querySelector('.issue-type')?.setAttribute('style', 'margin-bottom: 15px');
 
       return html`
       <ha-dialog
@@ -168,16 +170,16 @@ import { fetchDevicesMac } from './helpers';
             <div class="row">
               <div class="box">
                 ${this.name_error_exists ? html`
-                <ha-alert alert-type="error">
-                ${localize('editor.add_remote_error_exists')}
-              </ha-alert>
+                  <ha-alert id="error" alert-type="error">
+                    ${localize('editor.add_remote_error_exists')}
+                </ha-alert>
                 `
                 : html``}
                 ${this.name_error_none ? html`
-                        <ha-alert alert-type="error">
-                        ${localize('editor.add_remote_error_none')}
-                      </ha-alert>
-                        `
+                  <ha-alert id="error" alert-type="error">
+                    ${localize('editor.add_remote_error_none')}
+                </ha-alert>
+                `
                 : html``}
                 <ha-form
                   .hass=${this.hass}
@@ -188,9 +190,11 @@ import { fetchDevicesMac } from './helpers';
                 ></ha-form>
               </div>
             </div>
-            <mwc-button class="button-cancel" @click=${this._save}>
-            ${localize("common.save")}
-              </mwc-button>
+            <div id="save">
+              <mwc-button class="button-cancel" @click=${this._save}>
+              ${localize("common.save")}
+                </mwc-button>
+            </div>
           </div>
           <div class="options" slot="actions">
           </div>
@@ -204,13 +208,16 @@ import { fetchDevicesMac } from './helpers';
         return;
       }
       if (newData) {
-        if (newData.selected_device_mac !== undefined && this.config.preset === undefined) {
+        if (newData.entity !== undefined && this.config.preset === undefined) {
           newData = {
             ...newData,
             preset: this.config.name
           };
         }
         this.config = { ...this.config, ...newData };
+        if (!this.config.name) {
+          this.name_error_exists = false;
+        }
         this.dispatchEvent(
           new CustomEvent("config-changed", { detail: { config: this.config } })
         );
@@ -223,46 +230,47 @@ import { fetchDevicesMac } from './helpers';
         ev.stopPropagation();
       }
     }
+
     private async _save() {
+      if (this.config.name) {
+        this.name_error_exists = false;
+        this.name_error_none = false;
 
-    this.name_error_exists = false;
-      this.name_error_none = false;
-
-      let index = 0;
-      if (this.config?.all_devices) {
-        for (let i = 0; i < this.config?.all_devices?.length; i++) {
-          if (this.config?.all_devices[i].mac === this.config?.selected_device_mac) {
-            index = i
+        let index = 0;
+        if (this.config?.all_devices) {
+          for (let i = 0; i < this.config?.all_devices?.length; i++) {
+            if (this.config?.all_devices[i].mac === this.config?.entity) {
+              index = i
+            }
           }
         }
-      }
-      const presets = this.config?.all_devices[index].presets
-      const selectec_device_preset_list: any = []
+        const presets = this.config?.all_devices[index].presets
+        const selectec_device_preset_list: any = []
 
-      for (const [preset_name, preset_value] of Object.entries(presets)) {
-        selectec_device_preset_list.push(preset_name)
-      }
-
-      if (!selectec_device_preset_list.includes(this.config.name) && this.config.name) {
-        const response = addRemote(this.hass, this.config, this.config.name, this.config.remote_type);
-        response.then((resp) => {
-          if (resp.sucess) {
-            fireEvent(this, "add-remote", { broadlinkInfo: this.config, all_devices: resp.devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets , is_locked: device.is_locked})) });
-          }
-        })
-        const Devices = await fetchDevicesMac(this.hass).then((resp) => { return resp })
-
-        if (this.config) {
-          this.config = { ...this.config, all_devices: Devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })), preset: this.config.name }
+        for (const [preset_name, preset_value] of Object.entries(presets)) {
+          selectec_device_preset_list.push(preset_name)
         }
-        fireEvent(this, 'config-changed', { config: this.config });
-        this.closeDialog();
+
+        if (!selectec_device_preset_list.includes(this.config.name) && this.config.name) {
+          const response = addRemote(this.hass, this.config, this.config.name, this.config.remote_type);
+          response.then((resp) => {
+            if (resp.sucess) {
+              fireEvent(this, "add-remote", {
+                broadlinkInfo: this.config,
+                all_devices: resp.devices.map((device) => ({ mac: device.mac, device_type: device.device_type, presets: device.presets, is_locked: device.is_locked })),
+                index: index,
+              });
+            }
+          })
+          this.closeDialog();
+        }
       }
-      if (!this.config.name){
-        this.name_error_none = true
-      } else {
-        this.name_error_exists = true
-      }
+        if (!this.config.name) {
+          this.name_error_none = true
+        } else {
+          this.name_error_exists = true
+        }
+
     }
 
 
@@ -285,7 +293,12 @@ import { fetchDevicesMac } from './helpers';
           .box {
             padding-top: 30px;
           }
-
+          ha-alert::part(error) {
+            margin-bottom: 15px;
+          }
+          .row {
+            width: 100%;
+          }
           .div-options {
             width: 60%;
             display: flex;
@@ -297,12 +310,20 @@ import { fetchDevicesMac } from './helpers';
             align-content: stretch;
           }
           .contentFather {
+            width: 100%;
+            max-width: 250px;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: center;
           }
           .button-cancel {
             margin-top: 30px;
+          }
+          #save {
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            flex-direction: column;
           }
         `,
       ];

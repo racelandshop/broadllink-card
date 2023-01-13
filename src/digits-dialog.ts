@@ -17,11 +17,8 @@ import {
   getLovelace,
   fireEvent,
 } from 'custom-card-helpers';
-
-import { sendCommand, learningMode} from "./webhook"
-
 import './editor';
-
+import { learningMode} from "./webhook"
 import type { RemoteCardConfig } from './types';
 import { actionHandler } from './action-handler-directive';
 import { CARD_VERSION } from './const';
@@ -106,7 +103,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
   }
 
   protected render(): TemplateResult | void {
-    if (this.config.show_warning || !(this.config.selected_device_mac)) {
+    if (this.config.show_warning || !(this.config.entity)) {
       return this._showWarning(localize('common.show_warning'));
 
     }
@@ -121,7 +118,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
     let index = 0;
     if (this.config?.all_devices) {
       for (let i = 0; i < this.config?.all_devices?.length; i++) {
-        if (this.config?.all_devices[i].mac === this.config?.selected_device_mac) {
+        if (this.config?.all_devices[i].mac === this.config?.entity) {
           index = i
         }
       }
@@ -235,7 +232,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
     let index = 0;
     if (this.config?.all_devices) {
       for (let i = 0; i < this.config?.all_devices?.length; i++) {
-        if (this.config?.all_devices[i].mac === this.config?.selected_device_mac) {
+        if (this.config?.all_devices[i].mac === this.config?.entity) {
           index = i
         }
       }
@@ -256,7 +253,8 @@ export class HuiMoreInfoBroadlink extends LitElement  {
       }
       if (this.learningOn === true && this.config.preset) {
         this.learningLock = true;
-        const response = learningMode(this.hass, this.config, command, this.config.preset);
+        const mac  = this.config.entity
+        const response = learningMode(this.hass, mac, this.config.preset, this.config.entity_id, command);
         response.then((resp) => {
           if (resp.sucess){
             this.learningLock = false;
@@ -269,7 +267,7 @@ export class HuiMoreInfoBroadlink extends LitElement  {
         })
 
       } else if (this.learningOn === false && command !== 'LearningMode') {
-        sendCommand(this.hass, this.config, command, this.config.preset);
+        this.hass.callService("broadlink_custom_card", "send_command", {button_name: command, entity_id: this.config.entity_id})
       }
     }
   }
